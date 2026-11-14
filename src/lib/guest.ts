@@ -31,12 +31,15 @@ export async function createGuest(isDemo = false): Promise<Guest> {
 
 // Call only from route handlers or server actions: it may set a cookie.
 export async function getGuest(): Promise<Guest> {
+  return (await peekGuest()) ?? createGuest();
+}
+
+// Read-only lookup for server components (they cannot set cookies). Null when no valid guest cookie.
+export async function peekGuest(): Promise<Guest | null> {
   const id = (await cookies()).get(GUEST_COOKIE)?.value;
-  if (id && UUID.test(id)) {
-    const { data } = await db().from("guests").select().eq("id", id).maybeSingle();
-    if (data) return toGuest(data);
-  }
-  return createGuest();
+  if (!id || !UUID.test(id)) return null;
+  const { data } = await db().from("guests").select().eq("id", id).maybeSingle();
+  return data ? toGuest(data) : null;
 }
 
 export async function getCar(guestId: string): Promise<Car | null> {
