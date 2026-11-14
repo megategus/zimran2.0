@@ -25,6 +25,13 @@ export function CoursePath({ nodes, part, station }: { nodes: Node[]; part: stri
         {driving && park > 0 && <path d={car} stroke="var(--brand-soft)" strokeWidth={22} pathLength={1} className="road-fill" />}
         <path d={road} stroke="var(--line-strong)" strokeWidth={2} strokeDasharray="6 10" />
       </svg>
+      {driving && (
+        // Low-poly CAR_01 (top-down render, nose to the right, brand red) drives the road and turns with each bend.
+        // Drawn before the nodes so it passes under the discs; it parks clear of them (road.ts PARK).
+        <div aria-hidden className="car-drive absolute top-0 left-0 w-12 h-[21px] pointer-events-none drop-shadow-[0_2px_2px_rgb(0_0_0/0.35)]" style={{ offsetPath: `path("${car}")` }}>
+          <Image src="/car01.png" alt="" width={48} height={21} />
+        </div>
+      )}
       {nodes.map((n, i) => (
         <CourseNode key={n.title} {...n} part={part} n={i + 1} at={pts[i]} side={i % 2 ? "left" : "right"} width={W} />
       ))}
@@ -38,12 +45,6 @@ export function CoursePath({ nodes, part, station }: { nodes: Node[]; part: stri
             <span className="type-label text-[10px] text-ink-muted">{station.earned ? "Badge earned" : "Finish for badge"}</span>
             <span className={`type-body font-semibold ${station.earned ? "text-brand" : "text-ink-muted"}`}>{station.label}</span>
           </span>
-        </div>
-      )}
-      {driving && (
-        // Low-poly CAR_01 (top-down render, nose to the right) drives the road and turns with each bend.
-        <div aria-hidden className="car-drive absolute top-0 left-0 w-14 h-14 pointer-events-none drop-shadow-[0_2px_2px_rgb(0_0_0/0.35)]" style={{ offsetPath: `path("${car}")` }}>
-          <Image src="/car01.png" alt="" width={56} height={56} priority={false} />
         </div>
       )}
     </div>

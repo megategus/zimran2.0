@@ -3,10 +3,11 @@ export type Pt = [number, number];
 
 export const W = 260;
 const X = [56, 204];
-const TOP = 70; // first node center
+const TOP = 100; // first node center (room above it for the parked car)
 const ROW = 150; // vertical gap between nodes
-const TAIL = 80; // road below the last node
-const PARK = 52; // how far before a node the car stops on a straight
+const TAIL = 96; // road below the last node
+// How far from a node center the car parks on a straight: disc radius 32 + car half-length 24 + 14 gap.
+const PARK = 70;
 const T = 0.55; // where on a curve the car stops
 
 const r = (n: number) => Math.round(n * 10) / 10;

@@ -1,4 +1,4 @@
-import { Box, Camera, CalendarDays } from "lucide-react";
+import { Box, Camera, CalendarDays, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PartArt } from "@/components/art/PartArt";
@@ -72,6 +72,28 @@ export default async function AppHome() {
           </h1>
         </div>
         <StreakBar streak={me.streak} xp={me.xp} isPremium={pro} isDemo={guest.isDemo} week={me.week} freezeReady={me.freezeReady} />
+      </section>
+
+      {/* Pro tools: big, right under the car, the first thing after the header. */}
+      <section className="grid gap-4 md:grid-cols-2 pt-8">
+        {[
+          { Icon: Camera, title: "AI Mechanic", body: `Send a photo of a worn part or a repair quote. Get an answer about your ${car.model}.`, href: pro ? "/chat" : "/pricing", cta: pro ? "Ask a question" : "Unlock with Pro" },
+          { Icon: Box, title: "3D Brake Lab", body: "Pull a brake assembly apart piece by piece and learn what each part does.", href: pro ? "/lab" : "/pricing", cta: pro ? "Open the lab" : "Unlock with Pro" },
+        ].map(({ Icon, ...t }) => (
+          <Link key={t.title} href={t.href} className="group relative overflow-hidden bg-plate text-on-plate p-8 md:p-10 min-h-[300px] flex flex-col gap-5 transition-transform duration-200 hover:-translate-y-1">
+            <span aria-hidden className="absolute -right-6 -bottom-6 size-40 rounded-full bg-brand opacity-20 transition-transform duration-300 group-hover:scale-125" />
+            <Icon size={56} className="text-brand relative" aria-hidden />
+            <div className="flex items-center gap-3 relative">
+              <h2 className={`${headline} text-[56px] leading-none md:text-[72px]`}>{t.title}</h2>
+              {!pro && <Tag tone="brand">PRO</Tag>}
+            </div>
+            <p className="type-body-lg opacity-80 max-w-[40ch] relative">{t.body}</p>
+            <span className="mt-auto relative inline-flex items-center gap-3 type-body font-semibold text-brand">
+              <span className="size-9 bg-brand text-on-brand flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1"><ChevronRight size={18} aria-hidden /></span>
+              {t.cta}
+            </span>
+          </Link>
+        ))}
       </section>
 
       {/* Specs + badges */}
@@ -153,17 +175,6 @@ export default async function AppHome() {
         </div>
       </section>
 
-      {/* Pro: one thin strip under the courses. */}
-      <section className="mt-12 border-y border-line py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          {!pro && <Tag tone="brand">PRO</Tag>}
-          <span className="type-body text-ink">{pro ? "Your Pro tools" : "Pro adds a photo-reading mechanic and a 3D brake"}</span>
-        </div>
-        <div className="flex flex-wrap gap-6">
-          <ArrowLink href={pro ? "/chat" : "/pricing"}><Camera size={16} aria-hidden className="inline mr-1" />AI Mechanic</ArrowLink>
-          <ArrowLink href={pro ? "/lab" : "/pricing"}><Box size={16} aria-hidden className="inline mr-1" />3D Brake Lab</ArrowLink>
-        </div>
-      </section>
     </main>
   );
 }
