@@ -96,6 +96,10 @@ export async function createCarFromVin(guestId: string, vin: string): Promise<Ca
   return decoded ? insertCar(guestId, vin, decoded) : null;
 }
 
-export async function createCarFromYmm(guestId: string, year: number, make: string, model: string): Promise<Car> {
-  return insertCar(guestId, null, { year, make: make.toUpperCase(), model, trim: null, engine: null, specs: {} });
+// `extra` lets callers that know more (the demo seed) set trim, engine and specs; recalls are always fetched live.
+export async function createCarFromYmm(
+  guestId: string, year: number, make: string, model: string,
+  extra: Partial<Pick<Car, "trim" | "engine" | "specs">> = {},
+): Promise<Car> {
+  return insertCar(guestId, null, { year, make: make.toUpperCase(), model, trim: extra.trim ?? null, engine: extra.engine ?? null, specs: extra.specs ?? {} });
 }
