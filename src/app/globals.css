@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* Wrenchly tokens. Source of truth: docs/design/tokens.json. Keep names identical. */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-sunken: #e9edf1;
+  --line: #d3dae1;
+  --line-strong: #7a8a99;
+  --ink: #121a21;
+  --ink-muted: #52606d;
+  --brand: #0b7a75;
+  --brand-press: #075a56;
+  --on-brand: #ffffff;
+  --brand-soft: #dff1ef;
+  --amber: #e8a317;
+  --on-amber: #121a21;
+  --amber-ink: #8a5a00;
+  --brake: #c8352b;
+  --brake-soft: #fbe6e3;
+  --plate: #121a21;
+  --on-plate: #f4f6f8;
+  --focus: #0b5fd6;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --press-brand: 0 4px 0 0 #075a56;
+  --press-neutral: 0 3px 0 0 #c3ccd5;
+  --raise: 0 1px 2px rgba(18, 26, 33, 0.08), 0 8px 24px rgba(18, 26, 33, 0.06);
+
+  --font-display: var(--font-archivo), "Arial Narrow", system-ui, sans-serif;
+  --font-body: var(--font-instrument), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, Consolas, monospace;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1418;
+    --surface: #171e24;
+    --surface-sunken: #0b0f12;
+    --line: #2a343d;
+    --line-strong: #5d6b78;
+    --ink: #e6ecf1;
+    --ink-muted: #9aa8b5;
+    --brand: #2bb3a8;
+    --brand-press: #1c8279;
+    --on-brand: #062523;
+    --brand-soft: #12302e;
+    --amber: #f5b83d;
+    --on-amber: #121a21;
+    --amber-ink: #f5b83d;
+    --brake: #ff7a6e;
+    --brake-soft: #3a1c1a;
+    --plate: #e6ecf1;
+    --on-plate: #121a21;
+    --focus: #7fb2ff;
+    --press-brand: 0 4px 0 0 #1c8279;
+    --press-neutral: 0 3px 0 0 #0b0f12;
+    --raise: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+
+/* Utilities: bg-surface, text-ink, border-line-strong, rounded-lg, shadow-press-brand, font-display ...
+   Spacing: tokens space-1..8 (4,8,12,16,24,32,48,64px) = Tailwind 1,2,3,4,6,8,12,16. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-brand: var(--brand);
+  --color-brand-press: var(--brand-press);
+  --color-on-brand: var(--on-brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-amber: var(--amber);
+  --color-on-amber: var(--on-amber);
+  --color-amber-ink: var(--amber-ink);
+  --color-brake: var(--brake);
+  --color-brake-soft: var(--brake-soft);
+  --color-plate: var(--plate);
+  --color-on-plate: var(--on-plate);
+  --color-focus: var(--focus);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-press-brand: var(--press-brand);
+  --shadow-press-neutral: var(--press-neutral);
+  --shadow-raise: var(--raise);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+/* Type styles from tokens.json: use as class names, e.g. <h1 class="type-h1"> */
+@utility type-display {
+  font: 800 40px/44px var(--font-display);
+  letter-spacing: -0.5px;
+  text-wrap: balance;
+}
+@utility type-h1 {
+  font: 800 28px/34px var(--font-display);
+  text-wrap: balance;
+}
+@utility type-h2 {
+  font: 700 22px/28px var(--font-display);
+  text-wrap: balance;
+}
+@utility type-h3 {
+  font: 700 18px/24px var(--font-display);
+}
+@utility type-body-lg {
+  font: 400 17px/26px var(--font-body);
+}
+@utility type-body {
+  font: 400 15px/24px var(--font-body);
+}
+@utility type-label {
+  font: 600 13px/16px var(--font-body);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+@utility type-caption {
+  font: 400 12px/16px var(--font-body);
+}
+@utility type-data {
+  font: 500 14px/20px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+@utility type-stat {
+  font: 700 24px/28px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/24px var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
