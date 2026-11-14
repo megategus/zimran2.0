@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { findLesson } from "@/content/catalog";
 import { canAccess } from "@/lib/access";
-import { db } from "@/lib/db";
 import { grade } from "@/lib/grade";
 import { getCar, getGuest } from "@/lib/guest";
+import { getCachedLesson } from "@/lib/lessons/generate";
 import { recordCompletion } from "@/lib/progress";
-import type { Lesson } from "@/lib/types";
 
 const err = (error: string, status: number) => NextResponse.json({ error }, { status });
 
@@ -21,11 +20,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ key: st
 
   const car = await getCar(guest.id);
   if (!car) return err("Add your car first", 409);
-  // Same row B2's getCachedLesson reads; the quiz answers never left the server.
-  const { data, error } = await db().from("lessons").select("content").eq("car_id", car.id).eq("lesson_key", key).maybeSingle();
-  if (error) throw error;
-  if (!data) return err("Open the lesson before finishing it", 409);
-  const lesson = data.content as Lesson;
+  // The quiz answers never left the server: grade against the cached lesson.
+  const lesson = await getCachedLesson(car.id, key);
+  if (!lesson) return err("Open the lesson before finishing it", 409);
 
   let score: number;
   try {

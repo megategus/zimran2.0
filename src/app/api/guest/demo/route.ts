@@ -9,7 +9,7 @@ export async function POST() {
   const pastDays = [6, 5, 4, 3, 2, 1].map((n) => today(-n));
   const xp = xpFor(3) * (pastDays.length + 1);
 
-  // TODO(B1): swap for createCarFromYmm(guest.id, 2018, "Honda", "Civic") so the demo car gets real recalls.
+  // Direct insert, not createCarFromYmm: that leaves engine and specs empty, and the demo shows them.
   const results = await Promise.all([
     db().from("cars").insert({ guest_id: guest.id, year: 2018, make: "HONDA", model: "Civic", trim: "LX", engine: "2.0L I4", specs: { "Fuel type": "Gasoline", Drive: "FWD" } }),
     db().from("activity").insert([...pastDays, today(0)].map((day) => ({ guest_id: guest.id, day }))),
