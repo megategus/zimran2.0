@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { Tag } from "@/components/ui/primitives";
 import { headline } from "@/components/ui/site";
 import type { Car } from "@/lib/types";
@@ -23,12 +24,17 @@ export function CarCard({ car }: { car: Car }) {
         </dl>
       )}
       <div className="flex flex-col gap-3">
-        <h3 className={`${headline} text-[28px] leading-none text-ink`}>
-          <span className="text-brand">{car.recalls.length}</span> open recall{car.recalls.length === 1 ? "" : "s"}
-        </h3>
         {car.recalls.length === 0 ? (
-          <p className="type-body text-ink-muted">No open recalls</p>
+          <h3 className={`${headline} text-[28px] leading-none text-ink flex items-center gap-3`}>
+            <span className="size-8 rounded-full bg-brand text-on-brand flex items-center justify-center"><Check size={18} aria-hidden /></span>
+            No open recalls
+          </h3>
         ) : (
+          <h3 className={`${headline} text-[28px] leading-none text-ink`}>
+            <span className="text-brand">{car.recalls.length}</span> open recall{car.recalls.length === 1 ? "" : "s"}
+          </h3>
+        )}
+        {car.recalls.length > 0 && (
           <ul className="flex flex-col">
             {car.recalls.map((r) => (
               <li key={r.campaign} className="border-l-4 border-brake bg-brake-soft p-3 flex flex-col gap-1 mb-2">

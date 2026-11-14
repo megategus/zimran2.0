@@ -29,7 +29,6 @@ export function Gauge({
     return { x: C + rad * Math.cos(a), y: C + rad * Math.sin(a) };
   };
   const angleOf = (pct: number) => startAngle + ((endAngle - startAngle) * pct) / 100;
-  const needleA = at(angleOf(v), inner - 4), needleB = at(angleOf(v), 0);
 
   return (
     <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(v)} className="relative shrink-0" style={{ width: size, height: size * 0.8 }}>
@@ -38,9 +37,11 @@ export function Gauge({
           const pct = (i / (totalNotches - 1)) * 100;
           const a = at(angleOf(pct), R), b = at(angleOf(pct), inner);
           const on = pct <= v;
-          return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} strokeWidth={1.6} stroke={on ? "var(--amber)" : "var(--line-strong)"} strokeOpacity={on ? 1 : inactiveFillOpacity} />;
+          // Notches fill in a sweep when the value changes (staggered transition).
+          return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} strokeWidth={1.6} stroke={on ? "var(--amber)" : "var(--line-strong)"} strokeOpacity={on ? 1 : inactiveFillOpacity} style={{ transition: `stroke 200ms ease ${i * 8}ms` }} />;
         })}
-        <line x1={needleB.x} y1={needleB.y} x2={needleA.x} y2={needleA.y} stroke="var(--ink)" strokeWidth={2.4} />
+        {/* Needle drawn pointing right, rotated into place so value changes animate. */}
+        <line x1={C} y1={C} x2={C + inner - 4} y2={C} stroke="var(--ink)" strokeWidth={2.4} style={{ transform: `rotate(${angleOf(v)}deg)`, transformOrigin: `${C}px ${C}px`, transition: "transform 900ms cubic-bezier(.34,1.56,.64,1)" }} />
         <circle cx={C} cy={C} r={3.2} fill="var(--ink)" />
       </svg>
       {/* Center content sits in the open gap under the needle hub. */}

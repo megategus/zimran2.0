@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { StreakBar } from "@/components/app/StreakBar";
+import { readResume, RESUME_KEY } from "@/components/app/TodayCard";
 import { LessonCard } from "@/components/lesson/LessonCard";
 import { QuizOption, type OptionState } from "@/components/lesson/QuizOption";
 import { SafetyNote } from "@/components/lesson/SafetyNote";
@@ -33,7 +34,21 @@ export default function LessonPage() {
     if (res?.status === 409) return router.replace("/onboarding");
     if (!res?.ok) return setFailed(true);
     setLesson((await res.json()).lesson);
+    // Came back to an abandoned lesson: restore where it stopped.
+    const r = readResume();
+    if (r?.key === key) {
+      setStep(r.step);
+      setAnswers(r.answers ?? []);
+    }
   }, [key, router]);
+
+  // Save progress while the lesson is open, so /app can offer "Continue lesson". Cleared on finish.
+  useEffect(() => {
+    try {
+      if (result) localStorage.removeItem(RESUME_KEY);
+      else if (lesson && step > 0) localStorage.setItem(RESUME_KEY, JSON.stringify({ key, title: lesson.title, step, total: lesson.cards.length + lesson.quiz.length, answers }));
+    } catch {}
+  }, [key, lesson, step, answers, result]);
 
   useEffect(() => {
     fetch("/api/me").then((r) => r.json()).then(setMe).catch(() => {});
@@ -70,7 +85,7 @@ export default function LessonPage() {
     const next = idx >= 0 ? found?.course?.lessons[idx + 1] : undefined;
     const nextOpen = next && me && canAccess(me.guest, next.key);
     return (
-      <Shell {...shell} progress={1} streak={result.streak} xpBonus={result.xpGained}>
+      <Shell {...shell} progress={1} streak={result.streak} xpBonus={result.xpGained} celebrate>
         <div className="flex flex-col gap-3 border-b border-line pb-8">
           <h2 className={`${headline} text-ink text-[72px] leading-[0.9] md:text-[104px]`}>
             <span className="text-brand">{result.score}</span>/{result.total}
@@ -152,7 +167,7 @@ function Nav({ onBack, children }: { onBack?: () => void; children: React.ReactN
   );
 }
 
-function Shell({ me, title, course, progress, streak, xpBonus = 0, children }: { me: Me | null; title: string; course: string; progress?: number; streak?: number; xpBonus?: number; children: React.ReactNode }) {
+function Shell({ me, title, course, progress, streak, xpBonus = 0, celebrate, children }: { me: Me | null; title: string; course: string; progress?: number; streak?: number; xpBonus?: number; celebrate?: boolean; children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
       <SiteNav left={[{ href: "/app", label: "My courses" }]} right={[{ href: "/pricing", label: "Pricing" }]} />
@@ -165,7 +180,7 @@ function Shell({ me, title, course, progress, streak, xpBonus = 0, children }: {
           {course && <span className="type-label text-[12px] text-brand">{course}</span>}
           <h1 className={`${headline} text-ink text-[32px] leading-[0.95] md:text-[44px]`}>{title}</h1>
         </div>
-        {me && <StreakBar streak={streak ?? me.streak} xp={me.xp + xpBonus} isPremium={me.guest.isPremium} isDemo={false} />}
+        {me && <StreakBar streak={streak ?? me.streak} xp={me.xp + xpBonus} isPremium={me.guest.isPremium} isDemo={false} celebrate={celebrate} />}
       </header>
       <div className="mx-auto max-w-[720px] pt-10 flex flex-col gap-8">{children}</div>
     </main>

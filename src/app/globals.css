@@ -22,9 +22,9 @@
   --on-plate: #f3f3f5;
   --focus: #2a2c33;
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
   --radius-pill: 999px;
 
   --press-brand: 0 3px 0 0 #b8241d;
@@ -168,6 +168,14 @@ body {
   stroke-dasharray: 1;
   animation: road-fill 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
 }
+
+/* Lesson finished: streak flame and level number pop with a glow. */
+@keyframes flame-pop {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 60%, transparent); }
+  35% { transform: scale(1.35); box-shadow: 0 0 0 10px color-mix(in srgb, var(--amber) 0%, transparent); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+}
+.flame-pop { animation: flame-pop 700ms cubic-bezier(.34,1.56,.64,1) 400ms 2 both; }
 
 @media (prefers-reduced-motion: reduce) {
   *,

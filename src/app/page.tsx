@@ -20,7 +20,7 @@ export default function Home() {
   return (
     <div className="relative overflow-hidden">
       {/* Red diagonal stripes, bottom-left of the hero. */}
-      <div aria-hidden className="pointer-events-none absolute left-[-120px] top-[760px] md:top-[690px] w-[420px] -rotate-[28deg] flex flex-col gap-4">
+      <div aria-hidden className="pointer-events-none absolute left-[-120px] top-[900px] md:top-[800px] w-[420px] -rotate-[28deg] flex flex-col gap-4">
         <span className="h-4 bg-brand" />
         <span className="h-4 bg-brand" />
       </div>
@@ -41,9 +41,15 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap items-center gap-8">
               <ArrowLink href="/onboarding">Start with my car</ArrowLink>
-              <DemoButton className="type-body font-semibold text-ink underline underline-offset-4 decoration-line-strong hover:decoration-brand cursor-pointer disabled:text-ink-muted" />
+              <DemoButton className="[--glow:transparent] type-body font-semibold text-ink underline underline-offset-4 decoration-line-strong hover:decoration-brand cursor-pointer disabled:text-ink-muted" />
             </div>
             <p className="type-caption text-ink-muted">No login. The demo uses a 2018 Honda Civic and is labeled DEMO.</p>
+            {/* Jury free trial: demo with Pro on, so every lesson, the AI Mechanic and the 3D Lab work right away. */}
+            <div className="flex flex-col items-start gap-2 border-l-4 border-brand bg-surface px-4 py-3">
+              <span className="type-label text-[11px] text-brand">For the jury</span>
+              <DemoButton pro label="Free Pro trial: open everything" className="[--glow:color-mix(in_srgb,var(--on-brand)_45%,transparent)] isolate inline-flex items-center gap-2 bg-linear-to-r from-brand to-brand-press text-on-brand border-2 border-brand-press px-5 py-3 type-label text-[13px] cursor-pointer disabled:opacity-70" />
+              <span className="type-caption text-ink-muted">No card, no login. All lessons, AI Mechanic and 3D Lab.</span>
+            </div>
           </div>
 
           <div className="relative flex flex-col gap-4">
@@ -83,7 +89,7 @@ export default function Home() {
             </div>
             {/* Outlined red circle, like the reference "Play Video". */}
             <div className="absolute -left-6 -bottom-10 md:-left-12">
-              <DemoButton className="size-28 rounded-full border-2 border-brand bg-bg/70 backdrop-blur-sm text-brand type-body font-semibold cursor-pointer transition-transform duration-300 ease-[cubic-bezier(.34,1.56,.64,1)] hover:scale-110 disabled:opacity-70" />
+              <DemoButton className="[--glow:color-mix(in_srgb,var(--brand)_25%,transparent)] size-28 rounded-full border-2 border-brand bg-bg/70 backdrop-blur-sm text-brand type-body font-semibold cursor-pointer transition-transform duration-300 ease-[cubic-bezier(.34,1.56,.64,1)] hover:scale-110 disabled:opacity-70" />
             </div>
           </div>
 

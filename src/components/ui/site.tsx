@@ -1,6 +1,7 @@
 import { ChevronRight, Wrench } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps } from "react";
+import { Spotlight } from "./button-2";
 
 // Condensed display headline (landing reference style). Set the color separately.
 export const headline = "font-display font-extrabold [font-stretch:75%] tracking-[-0.01em]";
@@ -9,8 +10,9 @@ export const headline = "font-display font-extrabold [font-stretch:75%] tracking
 export function ArrowLink({ children, ...rest }: ComponentProps<typeof Link>) {
   return (
     <Link {...rest} className="group inline-flex items-center gap-3 type-body font-semibold text-brand">
-      <span className="size-7 shrink-0 bg-brand text-on-brand flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1">
-        <ChevronRight size={16} aria-hidden />
+      <span className="size-7 shrink-0 bg-brand text-on-brand flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1 relative overflow-hidden [--glow:color-mix(in_srgb,var(--on-brand)_55%,transparent)]">
+        <Spotlight listen={2} />
+        <ChevronRight size={16} aria-hidden className="relative" />
       </span>
       {children}
     </Link>
@@ -21,8 +23,9 @@ export function ArrowLink({ children, ...rest }: ComponentProps<typeof Link>) {
 export function ArrowButton({ children, className = "", ...rest }: ComponentProps<"button">) {
   return (
     <button type="button" {...rest} className={`group inline-flex items-center gap-3 type-body font-semibold text-brand cursor-pointer disabled:text-ink-muted disabled:cursor-not-allowed ${className}`}>
-      <span className="size-9 shrink-0 bg-brand text-on-brand flex items-center justify-center transition-transform duration-200 group-enabled:group-hover:translate-x-1 group-disabled:bg-line-strong">
-        <ChevronRight size={18} aria-hidden />
+      <span className="size-9 shrink-0 bg-brand text-on-brand flex items-center justify-center transition-transform duration-200 group-enabled:group-hover:translate-x-1 group-disabled:bg-line-strong relative overflow-hidden [--glow:color-mix(in_srgb,var(--on-brand)_55%,transparent)]">
+        <Spotlight listen={2} />
+        <ChevronRight size={18} aria-hidden className="relative" />
       </span>
       {children}
     </button>

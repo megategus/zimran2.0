@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Plans } from "@/components/pricing/Plans";
 import { Tag } from "@/components/ui/primitives";
+import { headline, SiteNav } from "@/components/ui/site";
 
 export const metadata = { title: "Pricing · Wrenchly" };
 
@@ -13,15 +13,13 @@ const FAQ = [
 export default async function Pricing({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
   return (
-    <main className="mx-auto max-w-[640px] px-4 py-8 md:py-16 flex flex-col gap-8">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="type-h3">Wrenchly</Link>
-        <Link href="/app" className="type-label text-ink-muted hover:text-ink">Back to my course</Link>
-      </header>
+    <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
+      <SiteNav left={[{ href: "/app", label: "My courses" }]} right={[{ href: "/onboarding", label: "Start" }]} />
+      <div className="mx-auto max-w-[760px] pt-12 flex flex-col gap-8">
 
       <section className="flex flex-col gap-3">
         <div><Tag tone="plate">Pro</Tag></div>
-        <h1 className="type-h1">Unlock everything about your car</h1>
+        <h1 className={`${headline} text-ink text-[56px] leading-[0.92] md:text-[80px]`}>Unlock <span className="text-brand">everything.</span></h1>
         <p className="type-body-lg text-ink-muted">Every lesson is built on your make, model and year. Pro opens all of them, plus the AI Mechanic and the 3D lab.</p>
       </section>
 
@@ -37,11 +35,12 @@ export default async function Pricing({ searchParams }: { searchParams: Promise<
       <dl className="flex flex-col gap-4 border-t border-line pt-6">
         {FAQ.map((f) => (
           <div key={f.q} className="flex flex-col gap-1">
-            <dt className="type-h3">{f.q}</dt>
+            <dt className={`${headline} text-ink text-[24px] leading-tight`}>{f.q}</dt>
             <dd className="text-ink-muted">{f.a}</dd>
           </div>
         ))}
       </dl>
+      </div>
     </main>
   );
 }

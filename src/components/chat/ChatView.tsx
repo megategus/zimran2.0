@@ -1,11 +1,11 @@
 "use client";
 
 import { ImagePlus, Send, X } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/primitives";
+import { headline, SiteNav } from "@/components/ui/site";
 import type { Car } from "@/lib/types";
 import { Markdown } from "./Markdown";
 import { IMAGE_TYPES, checkImage } from "./md";
@@ -116,16 +116,17 @@ export function ChatView() {
   const carName = car ? `${car.year} ${car.make} ${car.model}` : "";
 
   return (
-    <main className="mx-auto max-w-[640px] min-h-dvh flex flex-col px-4">
+    <main className="mx-auto max-w-[1120px] min-h-dvh flex flex-col px-4 md:px-10">
+      <SiteNav left={[{ href: "/app", label: "My courses" }]} right={[{ href: "/lab", label: "3D Lab" }]} />
+      <div className="mx-auto w-full max-w-[720px] flex-1 flex flex-col">
       <header className="sticky top-0 z-10 bg-bg py-4 flex items-center justify-between gap-3 border-b border-line">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="type-h3">AI Mechanic</h1>
+            <h1 className={`${headline} text-ink text-[36px] leading-none`}>AI <span className="text-brand">Mechanic</span></h1>
             <Tag tone="plate">Pro</Tag>
           </div>
           <p className="type-data text-ink-muted truncate">{carName || "Loading your car…"}{car?.engine ? ` · ${car.engine}` : ""}</p>
         </div>
-        <Link href="/app" className="type-label text-ink-muted hover:text-ink shrink-0">My course</Link>
       </header>
 
       <div className="flex-1 py-4 flex flex-col gap-3" aria-live="polite">
@@ -182,6 +183,7 @@ export function ChatView() {
         </div>
         <p className="type-caption text-ink-muted">Photos up to 5 MB, JPEG, PNG or WebP. Not stored. AI advice can be wrong: when in doubt, see a pro.</p>
       </form>
+      </div>
     </main>
   );
 }

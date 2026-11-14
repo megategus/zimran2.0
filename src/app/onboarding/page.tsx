@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/primitives";
+import { headline, SiteNav } from "@/components/ui/site";
 
 const input = "w-full rounded-md border-2 border-line-strong bg-surface px-3 py-3 type-body-lg focus:outline-none focus:border-brand";
 
@@ -37,8 +38,10 @@ export default function Onboarding() {
   };
 
   return (
-    <main className="mx-auto max-w-[560px] px-4 py-10 flex flex-col gap-6">
-      <h1 className="type-h1">What do you drive?</h1>
+    <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
+      <SiteNav left={[]} right={[{ href: "/pricing", label: "Pricing" }]} />
+      <div className="mx-auto max-w-[560px] pt-12 flex flex-col gap-6">
+      <h1 className={`${headline} text-ink text-[56px] leading-[0.92] md:text-[80px]`}>What do you <span className="text-brand">drive?</span></h1>
       <p className="type-body-lg text-ink-muted">Every lesson is written for your exact car. Your VIN is on the driver-side dashboard corner and on your insurance card.</p>
 
       <Card>
@@ -77,6 +80,7 @@ export default function Onboarding() {
           No VIN handy? Enter year, make and model
         </button>
       )}
+      </div>
     </main>
   );
 }

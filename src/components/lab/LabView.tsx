@@ -1,11 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PartArt } from "@/components/art/PartArt";
 import { Tag } from "@/components/ui/primitives";
+import { headline, SiteNav } from "@/components/ui/site";
 import { PARTS } from "@/content/catalog";
 import type { Car } from "@/lib/types";
 import { PartPanel } from "./PartPanel";
@@ -52,18 +52,18 @@ export function LabView() {
   const part = PARTS.find((p) => p.key === selected);
 
   return (
-    <main className="mx-auto max-w-[960px] px-4 py-4 md:py-8 flex flex-col gap-4">
-      <header className="flex items-center justify-between gap-3">
+    <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16 flex flex-col gap-4">
+      <SiteNav left={[{ href: "/app", label: "My courses" }]} right={[{ href: "/chat", label: "AI Mechanic" }]} />
+      <header className="flex items-end justify-between gap-3 pt-6">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="type-h2">3D Brake Lab</h1>
+            <h1 className={`${headline} text-ink text-[48px] leading-none md:text-[64px]`}>3D Brake <span className="text-brand">Lab</span></h1>
             <Tag tone="plate">Pro</Tag>
           </div>
           <p className="type-data text-ink-muted truncate">{car ? `${car.year} ${car.make} ${car.model}` : failed ? "Couldn't load your car. Reload the page." : "Loading your car…"}</p>
         </div>
         <div className="flex items-center gap-4 shrink-0">
           <span className="type-data text-amber-ink">{xp} XP</span>
-          <Link href="/app" className="type-label text-ink-muted hover:text-ink">My course</Link>
         </div>
       </header>
 
