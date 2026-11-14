@@ -2,34 +2,34 @@
 
 /* Wrenchly tokens. Source of truth: docs/design/tokens.json. Keep names identical. */
 :root {
-  --bg: #f4f6f8;
+  --bg: #f3f3f5;
   --surface: #ffffff;
-  --surface-sunken: #e9edf1;
-  --line: #d3dae1;
-  --line-strong: #7a8a99;
-  --ink: #121a21;
-  --ink-muted: #52606d;
-  --brand: #0b7a75;
-  --brand-press: #075a56;
+  --surface-sunken: #e8e8ec;
+  --line: #dcdce2;
+  --line-strong: #8b8d96;
+  --ink: #2a2c33;
+  --ink-muted: #6b6e78;
+  --brand: #e5332a;
+  --brand-press: #b8241d;
   --on-brand: #ffffff;
-  --brand-soft: #dff1ef;
-  --amber: #e8a317;
-  --on-amber: #121a21;
-  --amber-ink: #8a5a00;
+  --brand-soft: #fde4e2;
+  --amber: #e5332a;
+  --on-amber: #ffffff;
+  --amber-ink: #c42a22;
   --brake: #c8352b;
   --brake-soft: #fbe6e3;
-  --plate: #121a21;
-  --on-plate: #f4f6f8;
-  --focus: #0b5fd6;
+  --plate: #2a2c33;
+  --on-plate: #f3f3f5;
+  --focus: #2a2c33;
 
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-pill: 999px;
 
-  --press-brand: 0 4px 0 0 #075a56;
-  --press-neutral: 0 3px 0 0 #c3ccd5;
-  --raise: 0 1px 2px rgba(18, 26, 33, 0.08), 0 8px 24px rgba(18, 26, 33, 0.06);
+  --press-brand: 0 3px 0 0 #b8241d;
+  --press-neutral: 0 3px 0 0 #cfcfd6;
+  --raise: 0 1px 2px rgba(42, 44, 51, 0.08), 0 8px 24px rgba(42, 44, 51, 0.06);
 
   --font-display: var(--font-archivo), "Arial Narrow", system-ui, sans-serif;
   --font-body: var(--font-instrument), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -40,27 +40,27 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1418;
-    --surface: #171e24;
-    --surface-sunken: #0b0f12;
-    --line: #2a343d;
-    --line-strong: #5d6b78;
-    --ink: #e6ecf1;
-    --ink-muted: #9aa8b5;
-    --brand: #2bb3a8;
-    --brand-press: #1c8279;
-    --on-brand: #062523;
-    --brand-soft: #12302e;
-    --amber: #f5b83d;
-    --on-amber: #121a21;
-    --amber-ink: #f5b83d;
+    --bg: #17181c;
+    --surface: #212228;
+    --surface-sunken: #121316;
+    --line: #33353d;
+    --line-strong: #6d7079;
+    --ink: #ececf0;
+    --ink-muted: #a3a6b0;
+    --brand: #ff4a3d;
+    --brand-press: #c5312a;
+    --on-brand: #ffffff;
+    --brand-soft: #3a1a18;
+    --amber: #ff4a3d;
+    --on-amber: #ffffff;
+    --amber-ink: #ff6a5f;
     --brake: #ff7a6e;
     --brake-soft: #3a1c1a;
-    --plate: #e6ecf1;
-    --on-plate: #121a21;
-    --focus: #7fb2ff;
-    --press-brand: 0 4px 0 0 #1c8279;
-    --press-neutral: 0 3px 0 0 #0b0f12;
+    --plate: #ececf0;
+    --on-plate: #17181c;
+    --focus: #ececf0;
+    --press-brand: 0 3px 0 0 #c5312a;
+    --press-neutral: 0 3px 0 0 #0b0c0e;
     --raise: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.35);
     color-scheme: dark;
   }

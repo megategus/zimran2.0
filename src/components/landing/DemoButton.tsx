@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 
 // Seeds a demo guest (car + a week of activity) and opens the course map.
-export function DemoButton() {
+// className swaps the default secondary Button for a custom-styled button.
+export function DemoButton({ className }: { className?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,9 +26,15 @@ export function DemoButton() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button variant="secondary" onClick={start} disabled={busy}>
-        {busy ? "Setting up demo…" : "Try demo"}
-      </Button>
+      {className ? (
+        <button type="button" className={className} onClick={start} disabled={busy}>
+          {busy ? "Loading…" : "Try demo"}
+        </button>
+      ) : (
+        <Button variant="secondary" onClick={start} disabled={busy}>
+          {busy ? "Setting up demo…" : "Try demo"}
+        </Button>
+      )}
       {error && <p role="alert" className="type-caption text-brake">{error}</p>}
     </div>
   );

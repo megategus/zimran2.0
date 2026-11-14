@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const archivo = Archivo({ variable: "--font-archivo", subsets: ["latin"], weight: ["700", "800"] });
+// Variable font with the width axis, so headlines can use font-stretch for the condensed look.
+const archivo = Archivo({ variable: "--font-archivo", subsets: ["latin"], axes: ["wdth"] });
 const instrument = Instrument_Sans({ variable: "--font-instrument", subsets: ["latin"], weight: ["400", "600"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["500", "700"] });
 
