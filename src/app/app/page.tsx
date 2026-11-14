@@ -2,7 +2,8 @@ import { Camera, Box } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CarCard } from "@/components/app/CarCard";
-import { CourseNode, type NodeState } from "@/components/app/CourseNode";
+import type { NodeState } from "@/components/app/CourseNode";
+import { CoursePath } from "@/components/app/CoursePath";
 import { StreakBar } from "@/components/app/StreakBar";
 import { Card, Tag } from "@/components/ui/primitives";
 import { COURSES } from "@/content/catalog";
@@ -57,18 +58,16 @@ export default async function AppHome() {
               <h3 className="type-h2">{c.title}</h3>
               {c.status === "soon" && <Tag tone="muted">SOON</Tag>}
             </div>
-            {c.status === "live" ? (
-              <div className="flex flex-col items-center gap-8 py-2">
-                {c.lessons.map((l, i) => {
-                  const state = stateOf(l.key);
-                  return <CourseNode key={l.key} n={i + 1} state={state} title={l.title} href={state === "locked" ? "/pricing" : `/lesson/${l.key}`} offset={i % 2 === 1} />;
-                })}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center py-2">
-                <CourseNode n={1} state="soon" title={c.outline?.[0] ?? c.title} href={`/course/${c.key}`} offset={false} />
-              </div>
-            )}
+            <CoursePath
+              nodes={
+                c.status === "live"
+                  ? c.lessons.map((l) => {
+                      const state = stateOf(l.key);
+                      return { title: l.title, state, href: state === "locked" ? "/pricing" : `/lesson/${l.key}` };
+                    })
+                  : [{ title: c.outline?.[0] ?? c.title, state: "soon", href: `/course/${c.key}` }]
+              }
+            />
           </Card>
         ))}
       </div>

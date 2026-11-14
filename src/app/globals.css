@@ -155,6 +155,20 @@ body {
   outline-offset: 2px;
 }
 
+/* Course road: car drives along its offset-path, the road behind it fills in. Reduced motion jumps to the end. */
+@keyframes car-drive { from { offset-distance: 0%; } }
+@keyframes road-fill { from { stroke-dashoffset: 1; } }
+.car-drive {
+  offset-anchor: center;
+  offset-rotate: 0deg;
+  offset-distance: 100%;
+  animation: car-drive 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+.road-fill {
+  stroke-dasharray: 1;
+  animation: road-fill 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
