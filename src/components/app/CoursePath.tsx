@@ -15,7 +15,7 @@ export function CoursePath({ nodes }: { nodes: Node[] }) {
   return (
     <div className="relative mx-auto" style={{ width: W, height }}>
       <svg width={W} height={height} viewBox={`0 0 ${W} ${height}`} className="absolute inset-0 overflow-visible" aria-hidden fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path d={road} stroke="var(--surface-sunken)" strokeWidth={22} />
+        <path d={road} stroke="var(--line)" strokeWidth={22} />
         {driving && park > 0 && <path d={car} stroke="var(--brand-soft)" strokeWidth={22} pathLength={1} className="road-fill" />}
         <path d={road} stroke="var(--line-strong)" strokeWidth={2} strokeDasharray="6 10" />
       </svg>

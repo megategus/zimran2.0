@@ -1,27 +1,13 @@
-import { ChevronRight, Wrench } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import type { ComponentProps } from "react";
 import { DemoButton } from "@/components/landing/DemoButton";
+import { ArrowLink, headline as h, SiteNav } from "@/components/ui/site";
 import { COURSES } from "@/content/catalog";
 
 // Unsplash photos, hotlinked per Unsplash guidelines.
 const HERO = "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=1400&q=70&auto=format&fit=crop";
 const HANDS = "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=900&q=70&auto=format&fit=crop";
 
-const headline = "font-display font-extrabold [font-stretch:75%] tracking-[-0.01em] text-ink";
-
-// Small red square with an arrow, followed by a red label (reference "Read More" link).
-function ArrowLink({ children, ...rest }: ComponentProps<typeof Link>) {
-  return (
-    <Link {...rest} className="group inline-flex items-center gap-3 type-body font-semibold text-brand">
-      <span className="size-7 bg-brand text-on-brand flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1">
-        <ChevronRight size={16} aria-hidden />
-      </span>
-      {children}
-    </Link>
-  );
-}
+const headline = `${h} text-ink`;
 
 const NAV = [
   { href: "#how", label: "How it works" },
@@ -40,21 +26,7 @@ export default function Home() {
       </div>
 
       <main className="relative mx-auto max-w-[1120px] px-4 md:px-10">
-        <nav className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-line py-5 type-caption text-ink-muted">
-          <div className="flex gap-6 md:gap-16">
-            {NAV.slice(0, 2).map((n) => <a key={n.href} href={n.href} className="hidden sm:inline hover:text-ink">{n.label}</a>)}
-          </div>
-          <Link href="/" className="flex flex-col items-center gap-1 text-ink" aria-label="Wrenchly home">
-            <span className="flex items-center gap-2">
-              <Wrench size={18} className="text-brand" aria-hidden />
-              <span className={`${headline} text-[18px] uppercase tracking-[0.12em] [font-stretch:100%]`}>Wrenchly</span>
-            </span>
-            <span className="h-0.5 w-10 bg-brand" />
-          </Link>
-          <div className="flex justify-end gap-6 md:gap-16">
-            {NAV.slice(2).map((n) => <Link key={n.href} href={n.href} className="hover:text-ink">{n.label}</Link>)}
-          </div>
-        </nav>
+        <SiteNav left={NAV.slice(0, 2)} right={NAV.slice(2)} />
 
         {/* Hero */}
         <section className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] pt-12 md:pt-20 pb-16 md:pb-24">
