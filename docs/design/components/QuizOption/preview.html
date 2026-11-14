@@ -1,0 +1,16 @@
+<!-- @dsCard group="Learning" height=300 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Instrument+Sans:wght@400;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body)}.w-wrap{padding:16px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}:focus-visible{outline:2px solid var(--focus);outline-offset:2px}.w-label{font:600 13px/16px var(--font-body);letter-spacing:.6px;text-transform:uppercase}
+.w-list{display:flex;flex-direction:column;gap:12px;width:100%;max-width:520px}
+.w-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border-radius:var(--radius-md);border:2px solid var(--line-strong);background:var(--surface);color:var(--ink);font:400 15px/22px var(--font-body);box-shadow:var(--press-neutral);cursor:pointer}
+.w-let{flex:none;width:28px;height:28px;border-radius:var(--radius-sm);border:2px solid var(--line-strong);display:grid;place-items:center;font:700 13px/1 var(--font-mono);color:var(--ink-muted)}
+.w-sel{border-color:var(--brand)}.w-sel .w-let{border-color:var(--brand);color:var(--brand)}
+.w-ok{background:var(--brand-soft);border-color:var(--brand);box-shadow:none}.w-ok .w-let{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.w-bad{background:var(--brake-soft);border-color:var(--brake);box-shadow:none}.w-bad .w-let{background:var(--brake);border-color:var(--brake);color:var(--surface)}
+.w-tag{margin-left:auto;font:600 12px/1 var(--font-body);letter-spacing:.6px;text-transform:uppercase}.w-ok .w-tag{color:var(--brand)}.w-bad .w-tag{color:var(--brake)}</style>
+<div class="w-wrap"><div class="w-list">
+<button class="w-opt"><span class="w-let">A</span>The rotor is warped</button>
+<button class="w-opt w-sel"><span class="w-let">B</span>Brake fluid is low</button>
+<button class="w-opt w-ok"><span class="w-let">&#10003;</span>The pad wear tab is touching the rotor<span class="w-tag">Correct</span></button>
+<button class="w-opt w-bad"><span class="w-let">&#10005;</span>The caliper is seized<span class="w-tag">Not quite</span></button>
+</div></div>
