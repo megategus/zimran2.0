@@ -54,6 +54,12 @@ export const COURSES: Course[] = [
   { key: "ev-basics", title: "EV Basics", status: "soon", part: "ev-plug", lessons: [], outline: ["Battery, motor and regen braking", "Charging levels at home and on the road", "High-voltage safety: what never to touch"] },
 ];
 
+// Course reward: shown at the end of each road, in the badges column and on the lesson result screen.
+export const BADGES: Record<string, string> = { brakes: "Brake Boss", "oil-fluids": "Fluid Expert", "tires-wheels": "Tire Whisperer" };
+
+// Google Maps search for "see a pro" moments, per course.
+export const SHOP_QUERY: Record<string, string> = { brakes: "brake repair shop", "oil-fluids": "oil change", "tires-wheels": "tire shop" };
+
 export const PARTS: Part[] = [
   { key: "part-rotor", name: "Brake rotor", objectives: ["What the rotor does", "Warping, scoring and minimum thickness", "Resurface or replace"] },
   { key: "part-caliper", name: "Caliper", objectives: ["How the piston clamps the pads", "Sticking caliper symptoms", "Why caliper work needs a brake bleed"] },

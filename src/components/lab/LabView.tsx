@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PartArt } from "@/components/art/PartArt";
 import { Tag } from "@/components/ui/primitives";
-import { headline, SiteNav } from "@/components/ui/site";
+import { ArrowLink, headline, SiteNav } from "@/components/ui/site";
 import { PARTS } from "@/content/catalog";
 import type { Car } from "@/lib/types";
 import { PartPanel } from "./PartPanel";
@@ -32,6 +32,9 @@ export function LabView() {
   const [selected, setSelected] = useState<string | null>(null);
   const [explode, setExplode] = useState(0);
   const [failed, setFailed] = useState(false);
+  // "Find the part" game: the lab asks for a part, a correct click gives XP (once per part per day, server-side).
+  const [target, setTarget] = useState<string | null>(null);
+  const [gameMsg, setGameMsg] = useState<string | null>(null);
 
   useEffect(() => {
     let off = false;
@@ -50,6 +53,22 @@ export function LabView() {
   }, [router]);
 
   const part = PARTS.find((p) => p.key === selected);
+  const nameOf = (k: string) => PARTS.find((p) => p.key === k)?.name ?? k;
+  const nextTarget = (not?: string) => {
+    const pool = PARTS.filter((p) => p.key !== not);
+    return pool[Math.floor(Math.random() * pool.length)].key;
+  };
+  async function pick(k: string) {
+    setSelected(k);
+    if (!target) return;
+    if (k !== target) return setGameMsg(`That's the ${nameOf(k).toLowerCase()}. Find the ${nameOf(target).toLowerCase()}.`);
+    const res = await fetch("/api/lab/find", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ part: k }) }).catch(() => null);
+    const gained = (await res?.json().catch(() => null))?.xpGained ?? 0;
+    setXp((x) => x + gained);
+    const nt = nextTarget(k);
+    setTarget(nt);
+    setGameMsg(`Found it${gained ? `, +${gained} XP` : " (already found today)"}. Now find the ${nameOf(nt).toLowerCase()}.`);
+  }
 
   return (
     <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16 flex flex-col gap-4">
@@ -73,7 +92,7 @@ export function LabView() {
             <div className="rounded-lg bg-plate overflow-hidden border-2 border-plate">
               <div className="h-[320px] md:h-[440px]">
                 {webgl ? (
-                  <BrakeAssembly selected={selected} onSelect={setSelected} explode={explode} />
+                  <BrakeAssembly selected={selected} onSelect={pick} explode={explode} />
                 ) : (
                   <p className="p-6 text-on-plate">Your browser can&apos;t show 3D here. Pick a part below to learn it.</p>
                 )}
@@ -85,13 +104,26 @@ export function LabView() {
                 </label>
               )}
             </div>
+            <div className="flex flex-wrap items-center gap-4 border-l-4 border-brand bg-surface px-4 py-3">
+              {target ? (
+                <>
+                  <p className="type-body text-ink flex-1" role="status">{gameMsg ?? <>Find the <strong className="text-brand">{nameOf(target).toLowerCase()}</strong>. Tap it in 3D or below.</>}</p>
+                  <button type="button" onClick={() => { setTarget(null); setGameMsg(null); }} className="type-body text-ink-muted underline cursor-pointer">Stop</button>
+                </>
+              ) : (
+                <>
+                  <p className="type-body text-ink flex-1">Game: the lab names a part, you tap it. +3 XP for each part you find.</p>
+                  <button type="button" onClick={() => { setTarget(nextTarget()); setGameMsg(null); }} className="bg-brand text-on-brand px-4 py-2 type-label text-[12px] cursor-pointer">Find the part</button>
+                </>
+              )}
+            </div>
             <p className="type-caption text-ink-muted">Drag to rotate, pinch or scroll to zoom. Tap a part to learn it. Generic front disc brake, not a model of your exact car.</p>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-5">
               {PARTS.map((p) => {
                 const on = p.key === selected;
                 return (
                   <li key={p.key}>
-                    <button type="button" aria-pressed={on} onClick={() => setSelected(p.key)} className={`w-full h-full rounded-lg bg-surface p-3 flex flex-col items-center gap-2 text-center cursor-pointer ${on ? "border-2 border-brand shadow-press-brand" : "border border-line"}`}>
+                    <button type="button" aria-pressed={on} onClick={() => pick(p.key)} className={`w-full h-full rounded-lg bg-surface p-3 flex flex-col items-center gap-2 text-center cursor-pointer ${on ? "border-2 border-brand shadow-press-brand" : "border border-line"}`}>
                       <PartArt part={p.key.replace("part-", "")} size={48} label="" />
                       <span className="type-h3 text-[15px] leading-5">{p.name}</span>
                       {on && <Tag tone="brand">In 3D lab</Tag>}
@@ -104,7 +136,10 @@ export function LabView() {
 
           <aside className="rounded-lg bg-surface border border-line shadow-raise p-4 md:p-6" aria-live="polite">
             {part ? (
+              <>
+              <div className="mb-4"><ArrowLink href="/lesson/brakes-2">What fails here?</ArrowLink></div>
               <PartPanel key={part.key} partKey={part.key} name={part.name} onXp={(n) => setXp((x) => x + n)} />
+              </>
             ) : (
               <div className="flex flex-col gap-2">
                 <h2 className="type-h2">Pick a part</h2>

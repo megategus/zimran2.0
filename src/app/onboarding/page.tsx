@@ -1,12 +1,16 @@
 "use client";
 
+import { DoorOpen, FileText, ScanLine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/primitives";
-import { headline, SiteNav } from "@/components/ui/site";
+import { ArrowButton, headline, SiteNav } from "@/components/ui/site";
+import type { Car } from "@/lib/types";
 
 const input = "w-full rounded-md border-2 border-line-strong bg-surface px-3 py-3 type-body-lg focus:outline-none focus:border-brand";
+
+const titleCase = (s: string) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
 // POST /api/car takes {vin} or {year, make, model} (Task B1).
 export default function Onboarding() {
@@ -16,14 +20,15 @@ export default function Onboarding() {
   const [showYmm, setShowYmm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [found, setFound] = useState<Car | null>(null); // decoded car, waiting for "this is it?"
 
   async function send(body: object) {
     setBusy(true);
     setError(null);
     const res = await fetch("/api/car", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
     setBusy(false);
-    if (res?.ok) return router.push("/app");
     const data = await res?.json().catch(() => null);
+    if (res?.ok && data?.car) return setFound(data.car);
     setError(data?.error ?? "Something went wrong. Try again.");
     if (res?.status === 400) setShowYmm(true);
   }
@@ -37,12 +42,53 @@ export default function Onboarding() {
     send({ year: Number(ymm.year), make: ymm.make.trim(), model: ymm.model.trim() });
   };
 
+  if (found) {
+    const name = `${found.year} ${titleCase(found.make)} ${found.model}${found.trim ? ` ${found.trim}` : ""}`;
+    return (
+      <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
+        <SiteNav left={[]} right={[{ href: "/pricing", label: "Pricing" }]} />
+        <div className="mx-auto max-w-[560px] pt-12 flex flex-col gap-6">
+          <span className="type-label text-[12px] text-brand">We found your car</span>
+          <h1 className={`${headline} text-ink text-[48px] leading-[0.92] md:text-[64px]`}>
+            {name}. <span className="text-brand">This is it?</span>
+          </h1>
+          <dl className="flex flex-col">
+            {[...(found.engine ? [["Engine", found.engine]] : []), ...Object.entries(found.specs).slice(0, 3), ["Open recalls", String(found.recalls.length)]].map(([k, v]) => (
+              <div key={k} className="flex justify-between gap-4 border-b border-line py-3">
+                <dt className="type-label text-[11px] text-ink-muted">{k}</dt>
+                <dd className="type-data text-ink text-right">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="type-caption text-ink-muted">From NHTSA. Your first lessons are already being written for this car.</p>
+          <div className="flex flex-wrap items-center gap-8">
+            <ArrowButton onClick={() => router.push("/app")}>Yes, that&apos;s my car</ArrowButton>
+            <button type="button" onClick={() => setFound(null)} className="type-body text-ink-muted underline underline-offset-4 cursor-pointer">No, try again</button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
       <SiteNav left={[]} right={[{ href: "/pricing", label: "Pricing" }]} />
       <div className="mx-auto max-w-[560px] pt-12 flex flex-col gap-6">
       <h1 className={`${headline} text-ink text-[56px] leading-[0.92] md:text-[80px]`}>What do you <span className="text-brand">drive?</span></h1>
-      <p className="type-body-lg text-ink-muted">Every lesson is written for your exact car. Your VIN is on the driver-side dashboard corner and on your insurance card.</p>
+      <p className="type-body-lg text-ink-muted">Every lesson is written for your exact car. Find your 17-character VIN in one of these places:</p>
+      <ul className="grid grid-cols-3 gap-2">
+        {[
+          { Icon: ScanLine, title: "Windshield", where: "Lower left corner, seen from outside" },
+          { Icon: DoorOpen, title: "Door pillar", where: "Driver's door jamb sticker" },
+          { Icon: FileText, title: "Insurance card", where: "Or your registration" },
+        ].map(({ Icon, title, where }) => (
+          <li key={title} className="flex flex-col gap-1.5 border border-line bg-surface p-3">
+            <Icon size={22} className="text-brand" aria-hidden />
+            <span className="type-body font-semibold text-ink leading-tight">{title}</span>
+            <span className="type-caption text-ink-muted">{where}</span>
+          </li>
+        ))}
+      </ul>
 
       <Card>
         <form onSubmit={onVin} className="flex flex-col gap-3">

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { BottomTabs } from "@/components/ui/BottomTabs";
 import "./globals.css";
 
 // Variable font with the width axis, so headlines can use font-stretch for the condensed look.
@@ -17,7 +18,10 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${archivo.variable} ${instrument.variable} ${jetbrains.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <BottomTabs />
+      </body>
     </html>
   );
 }

@@ -59,8 +59,8 @@ export async function activityDays(guestId: string): Promise<string[]> {
 export async function snapshot(guest: Guest) {
   const [car, prog, days] = await Promise.all([
     getCar(guest.id),
-    // daily-<date> rows mark the question of the day as answered; they are not lessons.
-    db().from("progress").select("lesson_key, score").eq("guest_id", guest.id).not("lesson_key", "like", "daily-%"),
+    // Not lessons: daily-<date> (question of the day), fb:<key> (lesson feedback), find:<day>:<part> (lab game).
+    db().from("progress").select("lesson_key, score").eq("guest_id", guest.id).not("lesson_key", "like", "daily-%").not("lesson_key", "like", "%:%"),
     activityDays(guest.id),
   ]);
   if (prog.error) throw prog.error;

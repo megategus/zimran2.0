@@ -7,8 +7,9 @@ import { readResume, RESUME_KEY } from "@/components/app/TodayCard";
 import { LessonCard } from "@/components/lesson/LessonCard";
 import { QuizOption, type OptionState } from "@/components/lesson/QuizOption";
 import { SafetyNote } from "@/components/lesson/SafetyNote";
+import { BadgeEarned, Feedback, LoadingFacts, ShareResult } from "@/components/lesson/extras";
 import { ArrowButton, ArrowLink, headline, SiteNav } from "@/components/ui/site";
-import { findLesson } from "@/content/catalog";
+import { BADGES, findLesson, SHOP_QUERY } from "@/content/catalog";
 import { canAccess } from "@/lib/access";
 import type { Me } from "@/lib/progress";
 import type { PublicLesson } from "@/lib/types";
@@ -26,6 +27,10 @@ export default function LessonPage() {
   const [answers, setAnswers] = useState<number[]>([]);
   const [result, setResult] = useState<Result | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [simple, setSimple] = useState<Record<number, string>>({}); // "Explain like I'm new" rewrites per card
+  const [showSimple, setShowSimple] = useState(false);
+  const [simplifying, setSimplifying] = useState(false);
+  const [xpView, setXpView] = useState<{ xp: number; instant?: boolean } | null>(null); // staged XP for the level-up sweep
 
   const load = useCallback(async () => {
     setFailed(false);
@@ -57,8 +62,8 @@ export default function LessonPage() {
 
   const found = findLesson(key);
   const car = me?.car;
-  const carName = car ? `${car.year} ${car.model}` : "car";
-  const shell = { me, title: found?.lesson.title ?? "Lesson", course: found?.course?.title ?? (found?.isPart ? "3D Brake Lab" : "") };
+  const shell = { me, title: found?.lesson.title ?? "Lesson", course: found?.course?.title ?? (found?.isPart ? "3D Brake Lab" : ""), xpView };
+  const part = found?.course?.part ?? "rotor";
 
   if (failed)
     return (
@@ -71,9 +76,7 @@ export default function LessonPage() {
   if (!lesson)
     return (
       <Shell {...shell}>
-        <p className={`${headline} text-ink text-[40px] leading-[0.95] md:text-[56px] animate-pulse`} role="status">
-          Writing a lesson for your <span className="text-brand">{carName}</span>…
-        </p>
+        <LoadingFacts car={car} part={part} />
       </Shell>
     );
 
@@ -84,14 +87,19 @@ export default function LessonPage() {
     const idx = found?.course?.lessons.findIndex((l) => l.key === key) ?? -1;
     const next = idx >= 0 ? found?.course?.lessons[idx + 1] : undefined;
     const nextOpen = next && me && canAccess(me.guest, next.key);
+    // This lesson finished the course: the badge lights up.
+    const doneKeys = new Set([...(me?.progress.map((p) => p.lessonKey) ?? []), key]);
+    const badge = found?.course && found.course.lessons.every((l) => doneKeys.has(l.key)) ? BADGES[found.course.key] : undefined;
     return (
-      <Shell {...shell} progress={1} streak={result.streak} xpBonus={result.xpGained} celebrate>
+      <Shell {...shell} progress={1} streak={result.streak} celebrate>
         <div className="flex flex-col gap-3 border-b border-line pb-8">
           <h2 className={`${headline} text-ink text-[72px] leading-[0.9] md:text-[104px]`}>
             <span className="text-brand">{result.score}</span>/{result.total}
           </h2>
           <p className="type-body-lg text-ink">correct · <span className="text-brand font-semibold">+{result.xpGained} XP</span> · {result.streak} day streak</p>
         </div>
+        {badge && <BadgeEarned name={badge} part={part} />}
+        <ShareResult score={result.score} total={result.total} course={shell.course || lesson.title} streak={result.streak} />
         {lesson.quiz.map((q, qi) => (
           <div key={qi} className="flex flex-col gap-3">
             <h3 className={`${headline} text-ink text-[24px] leading-tight`}>{q.q}</h3>
@@ -104,6 +112,7 @@ export default function LessonPage() {
           {next && (nextOpen ? <ArrowLink href={`/lesson/${next.key}`}>Next lesson</ArrowLink> : <ArrowLink href="/pricing">Unlock with Pro</ArrowLink>)}
           <ArrowLink href="/app">Back to my courses</ArrowLink>
         </div>
+        <Feedback lessonKey={key} />
       </Shell>
     );
   }
@@ -112,8 +121,26 @@ export default function LessonPage() {
     const card = lesson.cards[step];
     return (
       <Shell {...shell} progress={step / total}>
-        <LessonCard card={card} carLine={lesson.carLine} costs={card.kind === "fix" ? lesson.costs : undefined} n={step + 1} total={nCards} />
-        {(step === 0 || card.kind === "fix") && <SafetyNote text={lesson.safety} />}
+        <LessonCard card={showSimple && simple[step] ? { ...card, body: simple[step] } : card} carLine={lesson.carLine} costs={card.kind === "fix" ? lesson.costs : undefined} n={step + 1} total={nCards} />
+        <button
+          type="button"
+          disabled={simplifying}
+          onClick={async () => {
+            if (simple[step]) return setShowSimple((v) => !v);
+            setSimplifying(true);
+            const res = await fetch(`/api/lessons/${key}/simplify`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ card: step }) }).catch(() => null);
+            const data = await res?.json().catch(() => null);
+            setSimplifying(false);
+            if (data?.body) {
+              setSimple((m) => ({ ...m, [step]: data.body }));
+              setShowSimple(true);
+            }
+          }}
+          className="self-start type-body text-brand underline underline-offset-4 cursor-pointer disabled:text-ink-muted"
+        >
+          {simplifying ? "Rewriting it simpler…" : showSimple && simple[step] ? "Show original" : "Explain like I'm new"}
+        </button>
+        {(step === 0 || card.kind === "fix") && <SafetyNote text={lesson.safety} shopQuery={found?.course ? SHOP_QUERY[found.course.key] : undefined} />}
         <Nav onBack={step > 0 ? () => setStep(step - 1) : undefined}>
           <ArrowButton onClick={() => setStep(step + 1)}>{step === nCards - 1 ? "Start quiz" : "Continue"}</ArrowButton>
         </Nav>
@@ -129,7 +156,17 @@ export default function LessonPage() {
     const res = await fetch(`/api/lessons/${key}/complete`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ answers }) }).catch(() => null);
     setSubmitting(false);
     if (res?.status === 402) return router.replace("/pricing");
-    if (res?.ok) setResult(await res.json());
+    if (res?.ok) {
+      const r: Result = await res.json();
+      setResult(r);
+      // XP sweep: if this crosses a level, run the needle to the end, snap to zero, then on to the new value.
+      const from = me?.xp ?? 0, to = from + r.xpGained, top = Math.floor(to / 100) * 100;
+      if (me && Math.floor(from / 100) < Math.floor(to / 100)) {
+        setXpView({ xp: top - 0.01 });
+        setTimeout(() => setXpView({ xp: top, instant: true }), 950);
+        setTimeout(() => setXpView({ xp: to }), 1050);
+      } else setXpView({ xp: to });
+    }
     else setFailed(true);
   };
   return (
@@ -167,7 +204,7 @@ function Nav({ onBack, children }: { onBack?: () => void; children: React.ReactN
   );
 }
 
-function Shell({ me, title, course, progress, streak, xpBonus = 0, celebrate, children }: { me: Me | null; title: string; course: string; progress?: number; streak?: number; xpBonus?: number; celebrate?: boolean; children: React.ReactNode }) {
+function Shell({ me, title, course, progress, streak, xpView, celebrate, children }: { me: Me | null; title: string; course: string; progress?: number; streak?: number; xpView?: { xp: number; instant?: boolean } | null; celebrate?: boolean; children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
       <SiteNav left={[{ href: "/app", label: "My courses" }]} right={[{ href: "/pricing", label: "Pricing" }]} />
@@ -179,8 +216,9 @@ function Shell({ me, title, course, progress, streak, xpBonus = 0, celebrate, ch
         <div className="flex flex-col gap-2">
           {course && <span className="type-label text-[12px] text-brand">{course}</span>}
           <h1 className={`${headline} text-ink text-[32px] leading-[0.95] md:text-[44px]`}>{title}</h1>
+          {me?.car && <p className="type-caption text-ink-muted">Written for your {me.car.model} by Claude · data from NHTSA</p>}
         </div>
-        {me && <StreakBar streak={streak ?? me.streak} xp={me.xp + xpBonus} isPremium={me.guest.isPremium} isDemo={false} celebrate={celebrate} />}
+        {me && <StreakBar streak={streak ?? me.streak} xp={xpView?.xp ?? me.xp} instant={xpView?.instant} isPremium={me.guest.isPremium} isDemo={false} celebrate={celebrate} />}
       </header>
       <div className="mx-auto max-w-[720px] pt-10 flex flex-col gap-8">{children}</div>
     </main>

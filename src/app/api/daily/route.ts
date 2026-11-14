@@ -13,7 +13,7 @@ async function load(guest: Guest) {
   const day = today(guest.dayOffset);
   const { data: prog, error } = await db().from("progress").select("lesson_key, score").eq("guest_id", guest.id);
   if (error) throw error;
-  const doneKeys = prog.map((r) => r.lesson_key as string).filter((k) => !k.startsWith("daily-"));
+  const doneKeys = prog.map((r) => r.lesson_key as string).filter((k) => !k.startsWith("daily-") && !k.includes(":"));
   const answered = prog.find((r) => r.lesson_key === dailyKey(day));
   if (!doneKeys.length) return { day, pick: null, answered };
   const { data: rows, error: e2 } = await db().from("lessons").select("lesson_key, content").eq("car_id", car.id).in("lesson_key", doneKeys);

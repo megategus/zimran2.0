@@ -160,7 +160,7 @@ body {
 @keyframes road-fill { from { stroke-dashoffset: 1; } }
 .car-drive {
   offset-anchor: center;
-  offset-rotate: 0deg;
+  offset-rotate: auto; /* nose follows the road through every bend */
   offset-distance: 100%;
   animation: car-drive 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
 }

@@ -11,6 +11,7 @@ export function Gauge({
   notchLengthPercent = 34,
   inactiveFillOpacity = 0.7,
   size = 120,
+  instant = false,
 }: {
   value: number; // 0..100
   label: string;
@@ -21,6 +22,7 @@ export function Gauge({
   notchLengthPercent?: number;
   inactiveFillOpacity?: number;
   size?: number;
+  instant?: boolean; // skip transitions (used to snap the needle back to zero on level-up)
 }) {
   const v = Math.min(100, Math.max(0, value));
   const R = 46, C = 50, inner = R * (1 - notchLengthPercent / 100);
@@ -38,10 +40,10 @@ export function Gauge({
           const a = at(angleOf(pct), R), b = at(angleOf(pct), inner);
           const on = pct <= v;
           // Notches fill in a sweep when the value changes (staggered transition).
-          return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} strokeWidth={1.6} stroke={on ? "var(--amber)" : "var(--line-strong)"} strokeOpacity={on ? 1 : inactiveFillOpacity} style={{ transition: `stroke 200ms ease ${i * 8}ms` }} />;
+          return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} strokeWidth={1.6} stroke={on ? "var(--amber)" : "var(--line-strong)"} strokeOpacity={on ? 1 : inactiveFillOpacity} style={{ transition: instant ? "none" : `stroke 200ms ease ${i * 8}ms` }} />;
         })}
         {/* Needle drawn pointing right, rotated into place so value changes animate. */}
-        <line x1={C} y1={C} x2={C + inner - 4} y2={C} stroke="var(--ink)" strokeWidth={2.4} style={{ transform: `rotate(${angleOf(v)}deg)`, transformOrigin: `${C}px ${C}px`, transition: "transform 900ms cubic-bezier(.34,1.56,.64,1)" }} />
+        <line x1={C} y1={C} x2={C + inner - 4} y2={C} stroke="var(--ink)" strokeWidth={2.4} style={{ transform: `rotate(${angleOf(v)}deg)`, transformOrigin: `${C}px ${C}px`, transition: instant ? "none" : "transform 900ms cubic-bezier(.34,1.56,.64,1)" }} />
         <circle cx={C} cy={C} r={3.2} fill="var(--ink)" />
       </svg>
       {/* Center content sits in the open gap under the needle hub. */}

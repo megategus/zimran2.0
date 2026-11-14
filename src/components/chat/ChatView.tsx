@@ -151,7 +151,7 @@ export function ChatView() {
         <div ref={endRef} />
       </div>
 
-      <form onSubmit={send} className="sticky bottom-0 bg-bg py-3 flex flex-col gap-2 border-t border-line">
+      <form onSubmit={send} className="sticky bottom-16 md:bottom-0 bg-bg py-3 flex flex-col gap-2 border-t border-line">
         {error && <p role="alert" className="type-caption text-brake">{error}</p>}
         {preview && (
           <div className="relative self-start">

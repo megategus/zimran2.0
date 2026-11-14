@@ -1,4 +1,5 @@
-import { Car, Flag } from "lucide-react";
+import { Flag } from "lucide-react";
+import Image from "next/image";
 import { CourseNode, type NodeState } from "./CourseNode";
 import { roadPaths, W } from "./road";
 
@@ -40,8 +41,9 @@ export function CoursePath({ nodes, part, station }: { nodes: Node[]; part: stri
         </div>
       )}
       {driving && (
-        <div aria-hidden className="car-drive absolute top-0 left-0 size-8 rounded-full bg-amber text-on-amber shadow-raise flex items-center justify-center pointer-events-none" style={{ offsetPath: `path("${car}")` }}>
-          <Car size={18} />
+        // Low-poly CAR_01 (top-down render, nose to the right) drives the road and turns with each bend.
+        <div aria-hidden className="car-drive absolute top-0 left-0 w-14 h-14 pointer-events-none drop-shadow-[0_2px_2px_rgb(0_0_0/0.35)]" style={{ offsetPath: `path("${car}")` }}>
+          <Image src="/car01.png" alt="" width={56} height={56} priority={false} />
         </div>
       )}
     </div>

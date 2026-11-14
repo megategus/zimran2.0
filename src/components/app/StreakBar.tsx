@@ -14,12 +14,13 @@ const dayStyle: Record<DayState, string> = {
   missed: "bg-surface-sunken text-ink-muted",
 };
 
-export function StreakBar({ streak, xp, isPremium, isDemo, progress, week, freezeReady, celebrate }: {
+export function StreakBar({ streak, xp, isPremium, isDemo, progress, week, freezeReady, celebrate, instant }: {
   streak: number; xp: number; isPremium: boolean; isDemo: boolean; progress?: number;
-  week?: { day: string; label: string; state: DayState }[]; freezeReady?: boolean; celebrate?: boolean;
+  week?: { day: string; label: string; state: DayState }[]; freezeReady?: boolean; celebrate?: boolean; instant?: boolean;
 }) {
   const level = Math.floor(xp / XP_PER_LEVEL) + 1;
   const into = xp % XP_PER_LEVEL;
+  const shown = Math.floor(into);
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
@@ -50,7 +51,8 @@ export function StreakBar({ streak, xp, isPremium, isDemo, progress, week, freez
         <span className="inline-flex flex-col items-center relative">
           <Gauge
             value={into}
-            label={`Level ${level}, ${into} of ${XP_PER_LEVEL} XP to level ${level + 1}`}
+            instant={instant}
+            label={`Level ${level}, ${shown} of ${XP_PER_LEVEL} XP to level ${level + 1}`}
             center={
               <span className="flex items-baseline gap-1">
                 <span className="type-label text-[10px] text-ink-muted">LVL</span>
@@ -59,7 +61,7 @@ export function StreakBar({ streak, xp, isPremium, isDemo, progress, week, freez
             }
           />
           <span className="type-data text-[12px] text-ink-muted">
-            {into}/{XP_PER_LEVEL} XP
+            {shown}/{XP_PER_LEVEL} XP
           </span>
         </span>
         {isPremium && <span className="rounded-pill bg-plate text-on-plate px-3 py-1.5 type-label text-[11px]">PRO</span>}

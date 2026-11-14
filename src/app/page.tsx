@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { DemoButton } from "@/components/landing/DemoButton";
 import { ArrowLink, headline as h, SiteNav } from "@/components/ui/site";
 import { COURSES } from "@/content/catalog";
@@ -131,7 +132,7 @@ export default function Home() {
 
         <footer className="border-t border-line py-6 type-caption text-ink-muted flex flex-col gap-1 md:flex-row md:justify-between">
           <span>Vehicle data from NHTSA. Cost figures are estimates and vary by region. When in doubt, see a professional mechanic.</span>
-          <span>Photos: Unsplash</span>
+          <span className="flex gap-4"><Link href="/about" className="underline hover:text-ink">About · data sources</Link><span>Photos: Unsplash</span></span>
         </footer>
       </main>
     </div>

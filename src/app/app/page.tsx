@@ -1,4 +1,5 @@
 import { Box, Camera, CalendarDays } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PartArt } from "@/components/art/PartArt";
 import { CarCard } from "@/components/app/CarCard";
@@ -9,7 +10,7 @@ import { StreakBar } from "@/components/app/StreakBar";
 import { TodayCard } from "@/components/app/TodayCard";
 import { Tag } from "@/components/ui/primitives";
 import { ArrowLink, headline, SiteNav } from "@/components/ui/site";
-import { COURSES, findLesson } from "@/content/catalog";
+import { BADGES, COURSES, findLesson } from "@/content/catalog";
 import { canAccess } from "@/lib/access";
 import { peekGuest } from "@/lib/guest";
 import { getCachedLesson } from "@/lib/lessons/generate";
@@ -20,8 +21,6 @@ export const dynamic = "force-dynamic";
 
 const titleCase = (s: string) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
-// Course reward, shown at the station at the end of each road and in the badges column.
-const BADGES: Record<string, string> = { brakes: "Brake Boss", "oil-fluids": "Fluid Expert", "tires-wheels": "Tire Whisperer" };
 
 export default async function AppHome() {
   const guest = await peekGuest();
@@ -58,15 +57,15 @@ export default async function AppHome() {
           <span className="flex items-center gap-2 type-label text-[12px] text-ink-muted"><CalendarDays size={14} aria-hidden />{tip.month} tip</span>
           <p className="type-body text-ink">{tip.text}</p>
           {quote && <p className="type-body text-ink border-l-2 border-brand pl-3">“{quote}”</p>}
-          <ArrowLink href={canAccess(guest, tip.lessonKey) ? `/lesson/${tip.lessonKey}` : "/pricing"}>{findLesson(tip.lessonKey)?.lesson.title}</ArrowLink>
+          {tip.lessonKey !== nextLesson?.key && <ArrowLink href={canAccess(guest, tip.lessonKey) ? `/lesson/${tip.lessonKey}` : "/pricing"}>{findLesson(tip.lessonKey)?.lesson.title}</ArrowLink>}
         </aside>
       </section>
 
       {/* Header: the car as the headline */}
-      <section className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end border-b border-line pt-10 md:pt-14 pb-10">
+      <section className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end border-b border-line pt-8 md:pt-14 pb-8 md:pb-10">
         <div className="flex flex-col gap-3">
           <span className="type-label text-[12px] text-ink-muted">Your garage · {titleCase(car.make)}</span>
-          <h1 className={`${headline} text-ink text-[64px] leading-[0.9] md:text-[104px]`}>
+          <h1 className={`${headline} text-ink text-[44px] leading-[0.9] md:text-[96px]`}>
             <span className="text-brand">{car.year}</span>
             <br />
             {car.model}
@@ -75,26 +74,8 @@ export default async function AppHome() {
         <StreakBar streak={me.streak} xp={me.xp} isPremium={pro} isDemo={guest.isDemo} week={me.week} freezeReady={me.freezeReady} />
       </section>
 
-      {/* Pro tools, big */}
-      <section className="grid gap-4 md:grid-cols-2 py-10">
-        {[
-          { Icon: Camera, title: "AI Mechanic", body: `Send a photo of a worn part or a repair quote. Get an answer about your ${car.model}.`, href: pro ? "/chat" : "/pricing", cta: pro ? "Ask a question" : "Unlock with Pro" },
-          { Icon: Box, title: "3D Brake Lab", body: "Pull a brake assembly apart piece by piece and learn what each part does.", href: pro ? "/lab" : "/pricing", cta: pro ? "Open the lab" : "Unlock with Pro" },
-        ].map(({ Icon, ...t }) => (
-          <div key={t.title} className="relative overflow-hidden bg-plate text-on-plate p-8 md:p-10 min-h-[280px] flex flex-col gap-5">
-            <Icon size={44} className="text-brand" aria-hidden />
-            <div className="flex items-center gap-3">
-              <h2 className={`${headline} text-[44px] leading-none md:text-[56px]`}>{t.title}</h2>
-              {!pro && <Tag tone="brand">PRO</Tag>}
-            </div>
-            <p className="type-body-lg opacity-80 max-w-[40ch]">{t.body}</p>
-            <div className="mt-auto"><ArrowLink href={t.href}>{t.cta}</ArrowLink></div>
-          </div>
-        ))}
-      </section>
-
       {/* Specs + badges */}
-      <section className="grid gap-12 md:grid-cols-[1.1fr_1fr] border-y border-line py-12">
+      <section className="grid gap-10 md:grid-cols-[1.1fr_1fr] border-b border-line py-10">
         <CarCard car={car} />
         <div className="flex flex-col gap-5">
           <h2 className={`${headline} text-ink text-[36px] leading-none`}>Badges</h2>
@@ -119,14 +100,14 @@ export default async function AppHome() {
 
       {/* Courses */}
       <section id="courses" className="pt-12 md:pt-16 flex flex-col gap-10 scroll-mt-4">
-        <h2 className={`${headline} text-ink text-[56px] leading-[0.92] md:text-[80px]`}>
+        <h2 className={`${headline} text-ink text-[44px] leading-[0.92] md:text-[80px]`}>
           Your
           <br />
           courses.
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-14">
-          {COURSES.map((c) => {
-            const isLive = c.status === "live";
+          {live.map((c) => {
+            const isLive = true;
             const finished = isLive && complete(c.key);
             const nextCourse = finished ? live.find((o) => o.key !== c.key && !complete(o.key)) : undefined;
             const nextHref = nextCourse && (nextCourse.lessons.find((l) => !done.has(l.key) && canAccess(guest, l.key)) ? `/lesson/${nextCourse.lessons.find((l) => !done.has(l.key))!.key}` : "/pricing");
@@ -160,6 +141,27 @@ export default async function AppHome() {
               </div>
             );
           })}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 border-t border-line pt-6">
+          <span className="type-label text-[11px] text-ink-muted mr-2">Coming soon</span>
+          {COURSES.filter((c) => c.status === "soon").map((c) => (
+            <Link key={c.key} href={`/course/${c.key}`} className="inline-flex items-center gap-1.5 border border-line-strong px-3 py-1.5 type-caption text-ink hover:border-brand">
+              <PartArt part={c.part} size={48} label="" className="size-5 grayscale" />
+              {c.title}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Pro: one thin strip under the courses. */}
+      <section className="mt-12 border-y border-line py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
+          {!pro && <Tag tone="brand">PRO</Tag>}
+          <span className="type-body text-ink">{pro ? "Your Pro tools" : "Pro adds a photo-reading mechanic and a 3D brake"}</span>
+        </div>
+        <div className="flex flex-wrap gap-6">
+          <ArrowLink href={pro ? "/chat" : "/pricing"}><Camera size={16} aria-hidden className="inline mr-1" />AI Mechanic</ArrowLink>
+          <ArrowLink href={pro ? "/lab" : "/pricing"}><Box size={16} aria-hidden className="inline mr-1" />3D Brake Lab</ArrowLink>
         </div>
       </section>
     </main>
