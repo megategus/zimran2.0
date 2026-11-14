@@ -17,7 +17,19 @@ export function ArrowLink({ children, ...rest }: ComponentProps<typeof Link>) {
   );
 }
 
-type NavLink = { href: string; label: string };
+// Same look as ArrowLink, as a button.
+export function ArrowButton({ children, className = "", ...rest }: ComponentProps<"button">) {
+  return (
+    <button type="button" {...rest} className={`group inline-flex items-center gap-3 type-body font-semibold text-brand cursor-pointer disabled:text-ink-muted disabled:cursor-not-allowed ${className}`}>
+      <span className="size-9 shrink-0 bg-brand text-on-brand flex items-center justify-center transition-transform duration-200 group-enabled:group-hover:translate-x-1 group-disabled:bg-line-strong">
+        <ChevronRight size={18} aria-hidden />
+      </span>
+      {children}
+    </button>
+  );
+}
+
+type NavLink ={ href: string; label: string };
 
 // Thin top bar: links left and right, centered logo with a red underline. Left links hide on phones.
 export function SiteNav({ left, right }: { left: NavLink[]; right: NavLink[] }) {
