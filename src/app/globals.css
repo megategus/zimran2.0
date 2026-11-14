@@ -177,6 +177,24 @@ body {
 }
 .flame-pop { animation: flame-pop 700ms cubic-bezier(.34,1.56,.64,1) 400ms 2 both; }
 
+/* Landing scroll progress: red bar tied to page scroll (CSS scroll timeline, no JS). Hidden where unsupported. */
+@keyframes scroll-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 6px;
+  z-index: 50;
+  background: var(--brand);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  animation: scroll-progress linear both;
+  animation-timeline: scroll(root);
+  animation-duration: auto !important; /* it tracks scroll, so the reduced-motion 0ms rule must not apply */
+}
+@supports not (animation-timeline: scroll()) {
+  .scroll-progress { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -19,6 +19,7 @@ const NAV = [
 export default function Home() {
   return (
     <div className="relative overflow-hidden">
+      <div aria-hidden className="scroll-progress" />
       {/* Red diagonal stripes, bottom-left of the hero. */}
       <div aria-hidden className="pointer-events-none absolute left-[-120px] top-[900px] md:top-[800px] w-[420px] -rotate-[28deg] flex flex-col gap-4">
         <span className="h-4 bg-brand" />
