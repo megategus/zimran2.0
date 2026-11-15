@@ -15,6 +15,9 @@ export function Spotlight({ listen = 1 }: { listen?: number }) {
     let el: HTMLElement | null | undefined = box;
     for (let i = 1; i < listen; i++) el = el?.parentElement;
     if (!box || !el) return;
+    // Touch screens: no hover glow. On iOS a tap that makes something visible counts as a hover,
+    // and the click only fires on the second tap.
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     let focused = false;
     const move = (e: MouseEvent) => {
       if (focused) return;

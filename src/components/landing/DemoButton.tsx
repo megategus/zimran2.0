@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Spotlight } from "@/components/ui/button-2";
@@ -9,7 +8,6 @@ import { Spotlight } from "@/components/ui/button-2";
 // className swaps the default secondary Button for a custom-styled button.
 // pro: jury free trial, the same demo with Pro already on. label overrides the button text.
 export function DemoButton({ className, pro = false, label = "Try demo" }: { className?: string; pro?: boolean; label?: string }) {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +17,8 @@ export function DemoButton({ className, pro = false, label = "Try demo" }: { cla
     try {
       const res = await fetch("/api/guest/demo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ pro }) });
       if (!res.ok) throw new Error();
-      router.push("/app");
+      // Full load, not router.push: the client router can show a cached /app from the old guest.
+      window.location.assign("/app");
     } catch {
       setError("Couldn't start the demo. Try again.");
       setBusy(false);
