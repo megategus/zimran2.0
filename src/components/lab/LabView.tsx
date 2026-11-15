@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { pricingHref } from "@/lib/paywall";
 import { useEffect, useState } from "react";
 import { PartArt } from "@/components/art/PartArt";
 import { Tag } from "@/components/ui/primitives";
@@ -44,7 +45,7 @@ export function LabView() {
       .then((me) => {
         if (off) return;
         if (!me?.car) return router.replace("/onboarding");
-        if (!me.guest?.isPremium) return router.replace("/pricing");
+        if (!me.guest?.isPremium) return router.replace(pricingHref("lab"));
         setCar(me.car);
         setXp(me.xp ?? me.guest.xp ?? 0);
       })
@@ -82,15 +83,15 @@ export function LabView() {
           <p className="type-data text-ink-muted truncate">{car ? `${car.year} ${car.make} ${car.model}` : failed ? "Couldn't load your car. Reload the page." : "Loading your car…"}</p>
         </div>
         <div className="flex items-center gap-4 shrink-0">
-          <span className="type-data text-amber-ink">{xp} XP</span>
+          <span className="type-data text-amber-ink" title={`${xp} XP total`}>LVL {Math.floor(xp / 100) + 1} · {Math.floor(xp % 100)}/100 XP</span>
         </div>
       </header>
 
       {car && (
-        <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_360px] md:items-start">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
           <div className="flex flex-col gap-4">
             <div className="rounded-lg bg-plate overflow-hidden border-2 border-plate">
-              <div className="h-[320px] md:h-[440px]">
+              <div className="h-[340px] sm:h-[420px] lg:h-[480px]">
                 {webgl ? (
                   <BrakeAssembly selected={selected} onSelect={pick} explode={explode} />
                 ) : (
@@ -107,7 +108,7 @@ export function LabView() {
             <div className="flex flex-wrap items-center gap-4 border-l-4 border-brand bg-surface px-4 py-3">
               {target ? (
                 <>
-                  <p className="type-body text-ink flex-1" role="status">{gameMsg ?? <>Find the <strong className="text-brand">{nameOf(target).toLowerCase()}</strong>. Tap it in 3D or below.</>}</p>
+                  <p className="type-body text-ink flex-1" role="status">{gameMsg ?? <>Find the <strong className="text-brand">{nameOf(target).toLowerCase()}</strong>. Tap it in the 3D view.</>}</p>
                   <button type="button" onClick={() => { setTarget(null); setGameMsg(null); }} className="type-body text-ink-muted underline cursor-pointer">Stop</button>
                 </>
               ) : (
@@ -123,9 +124,10 @@ export function LabView() {
                 const on = p.key === selected;
                 return (
                   <li key={p.key}>
-                    <button type="button" aria-pressed={on} onClick={() => pick(p.key)} className={`w-full h-full rounded-lg bg-surface p-3 flex flex-col items-center gap-2 text-center cursor-pointer ${on ? "border-2 border-brand shadow-press-brand" : "border border-line"}`}>
-                      <PartArt part={p.key.replace("part-", "")} size={48} label="" />
-                      <span className="type-h3 text-[15px] leading-5">{p.name}</span>
+                    <button type="button" aria-pressed={on} aria-label={target ? "Hidden part" : p.name} disabled={!!target && webgl} onClick={() => pick(p.key)} className={`w-full h-full rounded-lg bg-surface p-3 flex flex-col items-center gap-2 text-center cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${on ? "border-2 border-brand shadow-press-brand" : "border border-line"}`}>
+                      {target ? <span className="size-12" aria-hidden /> : <PartArt part={p.key.replace("part-", "")} size={48} label="" />}
+                      {/* During the game the names would give the answer away. */}
+                      <span className="type-h3 text-[15px] leading-5">{target ? "?" : p.name}</span>
                       {on && <Tag tone="brand">In 3D lab</Tag>}
                     </button>
                   </li>

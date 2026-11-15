@@ -12,6 +12,7 @@ const dayStyle: Record<DayState, string> = {
   frozen: "bg-surface border-2 border-ink text-ink",
   today: "border-2 border-dashed border-brand text-brand",
   missed: "bg-surface-sunken text-ink-muted",
+  upcoming: "border border-line text-ink-muted",
 };
 
 export function StreakBar({ streak, xp, isPremium, isDemo, progress, week, freezeReady, celebrate, instant }: {
@@ -39,7 +40,7 @@ export function StreakBar({ streak, xp, isPremium, isDemo, progress, week, freez
           </span>
           {/* Week strip: last 7 days. Never color alone: frozen shows a snowflake, today is dashed. */}
           {week && (
-            <span className="flex gap-1" aria-label="This week">
+            <span className="flex gap-1" aria-label="This week, Monday to Sunday">
               {week.map((d) => (
                 <span key={d.day} title={`${d.day}: ${d.state}`} className={`size-6 flex items-center justify-center type-label text-[10px] ${dayStyle[d.state]}`}>
                   {d.state === "frozen" ? <Snowflake size={12} aria-label="frozen" /> : d.label}

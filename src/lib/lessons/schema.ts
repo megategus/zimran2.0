@@ -21,6 +21,7 @@ export const LessonSchema = z
           q: z.string().min(1),
           options: z.array(z.string().min(1)).length(4),
           answerIndex: z.number().int().min(0).max(3),
+          why: z.string().min(1).describe("One sentence on why the correct answer is right, in plain words").optional(),
         }),
       )
       .length(3),

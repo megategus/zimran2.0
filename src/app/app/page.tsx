@@ -12,6 +12,7 @@ import { Tag } from "@/components/ui/primitives";
 import { ArrowLink, headline, SiteNav } from "@/components/ui/site";
 import { BADGES, COURSES, findLesson } from "@/content/catalog";
 import { canAccess } from "@/lib/access";
+import { pricingHref } from "@/lib/paywall";
 import { peekGuest } from "@/lib/guest";
 import { getCachedLesson } from "@/lib/lessons/generate";
 import { snapshot } from "@/lib/progress";
@@ -36,7 +37,7 @@ export default async function AppHome() {
   const complete = (key: string) => live.find((c) => c.key === key)!.lessons.every((l) => done.has(l.key));
   const undone = live.flatMap((c) => c.lessons.filter((l) => !done.has(l.key)).map((l) => ({ ...l, course: c.title })));
   const nextLesson = undone.find((l) => canAccess(guest, l.key)) ?? undone[0];
-  const next = nextLesson ? { title: nextLesson.title, course: nextLesson.course, href: canAccess(guest, nextLesson.key) ? `/lesson/${nextLesson.key}` : "/pricing", locked: !canAccess(guest, nextLesson.key) } : null;
+  const next = nextLesson ? { title: nextLesson.title, course: nextLesson.course, href: canAccess(guest, nextLesson.key) ? `/lesson/${nextLesson.key}` : pricingHref(nextLesson.key), locked: !canAccess(guest, nextLesson.key) } : null;
 
   // Seasonal tip: the figure comes from this car's cached lesson, never hardcoded.
   const tip = seasonTip(new Date(me.today).getUTCMonth());
@@ -46,8 +47,8 @@ export default async function AppHome() {
   return (
     <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
       <SiteNav
-        left={[{ href: "#courses", label: "Courses" }, { href: pro ? "/chat" : "/pricing", label: "AI Mechanic" }]}
-        right={[{ href: pro ? "/lab" : "/pricing", label: "3D Lab" }, { href: "/pricing", label: pro ? "Plan" : "Go Pro" }]}
+        left={[{ href: "#courses", label: "Courses" }, { href: pro ? "/chat" : pricingHref("chat"), label: "AI Mechanic" }]}
+        right={[{ href: pro ? "/lab" : pricingHref("lab"), label: "3D Lab" }, { href: "/pricing", label: pro ? "Plan" : "Go Pro" }]}
       />
 
       {/* Today + seasonal tip */}
@@ -57,7 +58,7 @@ export default async function AppHome() {
           <span className="flex items-center gap-2 type-label text-[12px] text-ink-muted"><CalendarDays size={14} aria-hidden />{tip.month} tip</span>
           <p className="type-body text-ink">{tip.text}</p>
           {quote && <p className="type-body text-ink border-l-2 border-brand pl-3">“{quote}”</p>}
-          {tip.lessonKey !== nextLesson?.key && <ArrowLink href={canAccess(guest, tip.lessonKey) ? `/lesson/${tip.lessonKey}` : "/pricing"}>{findLesson(tip.lessonKey)?.lesson.title}</ArrowLink>}
+          {tip.lessonKey !== nextLesson?.key && <ArrowLink href={canAccess(guest, tip.lessonKey) ? `/lesson/${tip.lessonKey}` : pricingHref(tip.lessonKey)}>{findLesson(tip.lessonKey)?.lesson.title}</ArrowLink>}
         </aside>
       </section>
 
@@ -77,14 +78,14 @@ export default async function AppHome() {
       {/* Pro tools: big, right under the car, the first thing after the header. */}
       <section className="grid gap-4 md:grid-cols-2 pt-8">
         {[
-          { Icon: Camera, title: "AI Mechanic", body: `Send a photo of a worn part or a repair quote. Get an answer about your ${car.model}.`, href: pro ? "/chat" : "/pricing", cta: pro ? "Ask a question" : "Unlock with Pro" },
-          { Icon: Box, title: "3D Brake Lab", body: "Pull a brake assembly apart piece by piece and learn what each part does.", href: pro ? "/lab" : "/pricing", cta: pro ? "Open the lab" : "Unlock with Pro" },
+          { Icon: Camera, title: "AI Mechanic", body: `Send a photo of a worn part or a repair quote. Get an answer about your ${car.model}.`, href: pro ? "/chat" : pricingHref("chat"), cta: pro ? "Ask a question" : "Unlock with Pro" },
+          { Icon: Box, title: "3D Brake Lab", body: "Pull a brake assembly apart piece by piece and learn what each part does.", href: pro ? "/lab" : pricingHref("lab"), cta: pro ? "Open the lab" : "Unlock with Pro" },
         ].map(({ Icon, ...t }) => (
           <Link key={t.title} href={t.href} className="group relative overflow-hidden bg-plate text-on-plate p-8 md:p-10 min-h-[300px] flex flex-col gap-5 transition-transform duration-200 hover:-translate-y-1">
             <span aria-hidden className="absolute -right-6 -bottom-6 size-40 rounded-full bg-brand opacity-20 transition-transform duration-300 group-hover:scale-125" />
             <Icon size={56} className="text-brand relative" aria-hidden />
-            <div className="flex items-center gap-3 relative">
-              <h2 className={`${headline} text-[56px] leading-none md:text-[72px]`}>{t.title}</h2>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 relative min-w-0">
+              <h2 className={`${headline} text-[48px] leading-none md:text-[56px] lg:text-[72px] break-words min-w-0`}>{t.title}</h2>
               {!pro && <Tag tone="brand">PRO</Tag>}
             </div>
             <p className="type-body-lg opacity-80 max-w-[40ch] relative">{t.body}</p>
@@ -132,7 +133,7 @@ export default async function AppHome() {
             const isLive = true;
             const finished = isLive && complete(c.key);
             const nextCourse = finished ? live.find((o) => o.key !== c.key && !complete(o.key)) : undefined;
-            const nextHref = nextCourse && (nextCourse.lessons.find((l) => !done.has(l.key) && canAccess(guest, l.key)) ? `/lesson/${nextCourse.lessons.find((l) => !done.has(l.key))!.key}` : "/pricing");
+            const nextHref = nextCourse && (nextCourse.lessons.find((l) => !done.has(l.key) && canAccess(guest, l.key)) ? `/lesson/${nextCourse.lessons.find((l) => !done.has(l.key))!.key}` : pricingHref(nextCourse.lessons.find((l) => !done.has(l.key))?.key));
             return (
               <div key={c.key} className="flex flex-col gap-6 border-t-2 border-ink pt-5">
                 <div className="flex items-center justify-between gap-2">
@@ -155,7 +156,7 @@ export default async function AppHome() {
                     isLive
                       ? c.lessons.map((l) => {
                           const state = stateOf(l.key);
-                          return { title: l.title, state, href: state === "locked" ? "/pricing" : `/lesson/${l.key}` };
+                          return { title: l.title, state, href: state === "locked" ? pricingHref(l.key) : `/lesson/${l.key}` };
                         })
                       : [{ title: c.outline?.[0] ?? c.title, state: "soon", href: `/course/${c.key}` }]
                   }

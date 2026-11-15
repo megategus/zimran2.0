@@ -177,6 +177,9 @@ body {
 }
 .flame-pop { animation: flame-pop 700ms cubic-bezier(.34,1.56,.64,1) 400ms 2 both; }
 
+/* Indeterminate bar while a part lesson is written. */
+@keyframes lab-load { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
 /* Landing scroll progress: red bar tied to page scroll (CSS scroll timeline, no JS). Hidden where unsupported. */
 @keyframes scroll-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .scroll-progress {

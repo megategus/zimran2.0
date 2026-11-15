@@ -2,6 +2,7 @@
 
 import { ImagePlus, Send, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { pricingHref } from "@/lib/paywall";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/primitives";
@@ -35,11 +36,11 @@ export function ChatView() {
         const me = await fetch("/api/me").then((r) => (r.ok ? r.json() : null));
         if (off) return;
         if (!me?.car) return router.replace("/onboarding");
-        if (!me.guest?.isPremium) return router.replace("/pricing");
+        if (!me.guest?.isPremium) return router.replace(pricingHref("chat"));
         setCar(me.car);
         const hist = await fetch("/api/chat");
         if (off) return;
-        if (hist.status === 402) return router.replace("/pricing");
+        if (hist.status === 402) return router.replace(pricingHref("chat"));
         if (hist.ok) {
           const data = await hist.json();
           setMessages(((data.messages ?? []) as ApiMsg[]).map((m) => ({
@@ -86,7 +87,7 @@ export function ChatView() {
     setMessages([...before, { role: "user", content: message, hadImage: !!image }, { role: "assistant", content: "" }]);
     try {
       const res = await fetch("/api/chat", { method: "POST", body });
-      if (res.status === 402) return router.replace("/pricing");
+      if (res.status === 402) return router.replace(pricingHref("chat"));
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => null);
         throw new Error(typeof data?.error === "string" ? data.error : "The mechanic didn't answer. Try again.");

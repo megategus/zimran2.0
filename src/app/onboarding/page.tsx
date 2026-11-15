@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/primitives";
 import { ArrowButton, headline, SiteNav } from "@/components/ui/site";
 import type { Car } from "@/lib/types";
 
+const BAD_VIN_CHARS = /[^A-HJ-NPR-Z0-9]/;
+
 const input = "w-full rounded-md border-2 border-line-strong bg-surface px-3 py-3 type-body-lg focus:outline-none focus:border-brand";
 
 const titleCase = (s: string) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
@@ -53,7 +55,7 @@ export default function Onboarding() {
             {name}. <span className="text-brand">This is it?</span>
           </h1>
           <dl className="flex flex-col">
-            {[...(found.engine ? [["Engine", found.engine]] : []), ...Object.entries(found.specs).slice(0, 3), ["Open recalls", String(found.recalls.length)]].map(([k, v]) => (
+            {[...(found.engine ? [["Engine", found.engine]] : []), ...Object.entries(found.specs).slice(0, 3), ["Recalls for this model", String(found.recalls.length)]].map(([k, v]) => (
               <div key={k} className="flex justify-between gap-4 border-b border-line py-3">
                 <dt className="type-label text-[11px] text-ink-muted">{k}</dt>
                 <dd className="type-data text-ink text-right">{v}</dd>
@@ -93,8 +95,12 @@ export default function Onboarding() {
       <Card>
         <form onSubmit={onVin} className="flex flex-col gap-3">
           <label htmlFor="vin" className="type-label text-[12px]">VIN (17 characters)</label>
-          <input id="vin" className={`${input} type-data uppercase`} value={vin} onChange={(e) => setVin(e.target.value)} maxLength={17} autoComplete="off" spellCheck={false} placeholder="1HGCV1F30JA000000" />
-          <Button type="submit" full disabled={busy || vin.trim().length !== 17}>
+          <input id="vin" aria-describedby="vin-hint" className={`${input} type-data uppercase`} value={vin} onChange={(e) => setVin(e.target.value.replace(/\s/g, ""))} maxLength={17} autoComplete="off" spellCheck={false} placeholder="1HGCV1F30JA000000" />
+          <p id="vin-hint" aria-live="polite" className={`flex justify-between gap-4 type-caption ${BAD_VIN_CHARS.test(vin.toUpperCase()) ? "text-brake" : "text-ink-muted"}`}>
+            <span>{BAD_VIN_CHARS.test(vin.toUpperCase()) ? "VINs never use I, O or Q. Check for 1 and 0." : vin.length === 17 ? "Looks complete." : `${17 - vin.length} more to go`}</span>
+            <span className="type-data">{vin.length}/17</span>
+          </p>
+          <Button type="submit" full disabled={busy || vin.trim().length !== 17 || BAD_VIN_CHARS.test(vin.toUpperCase())}>
             {busy && !showYmm ? "Looking up your car…" : "Find my car"}
           </Button>
         </form>

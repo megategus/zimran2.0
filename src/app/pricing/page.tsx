@@ -1,4 +1,4 @@
-import { Check, Minus } from "lucide-react";
+import { Check, Lock, Minus } from "lucide-react";
 import Link from "next/link";
 import { Plans } from "@/components/pricing/Plans";
 import { Tag } from "@/components/ui/primitives";
@@ -6,6 +6,7 @@ import { headline, SiteNav } from "@/components/ui/site";
 import { db } from "@/lib/db";
 import { getCar, peekGuest } from "@/lib/guest";
 import { getCachedLesson } from "@/lib/lessons/generate";
+import { paywallReason } from "@/lib/paywall";
 import type { Lesson } from "@/lib/types";
 
 export const metadata = { title: "Pricing · Wrenchly" };
@@ -41,13 +42,21 @@ async function fairBrakePrice(): Promise<{ shop: string; car: string } | null> {
   }
 }
 
-export default async function Pricing({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error } = await searchParams;
-  const fair = await fairBrakePrice();
+export default async function Pricing({ searchParams }: { searchParams: Promise<{ error?: string; from?: string }> }) {
+  const { error, from } = await searchParams;
+  const reason = paywallReason(from);
+  const guest = await peekGuest();
+  const [fair, car] = await Promise.all([fairBrakePrice(), guest ? getCar(guest.id).catch(() => null) : null]);
   return (
     <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
-      <SiteNav left={[{ href: "/app", label: "My courses" }]} right={[{ href: "/onboarding", label: "Start" }]} />
+      <SiteNav left={car ? [{ href: "/app", label: "My courses" }] : [{ href: "/", label: "Home" }]} right={car ? [] : [{ href: "/onboarding", label: "Start" }]} />
       <div className="mx-auto max-w-[760px] pt-12 flex flex-col gap-10">
+        {reason && (
+          <p role="status" className="flex items-start gap-3 border-l-4 border-brand bg-surface px-4 py-3 type-body-lg text-ink">
+            <Lock size={20} className="text-brand shrink-0 mt-1" aria-hidden />
+            <span>{reason.what} is part of Pro. Pick a plan below to open it.</span>
+          </p>
+        )}
         <section className="flex flex-col gap-3">
           <div><Tag tone="plate">Pro</Tag></div>
           <h1 className={`${headline} text-ink text-[56px] leading-[0.92] md:text-[80px]`}>Unlock <span className="text-brand">everything.</span></h1>
@@ -70,7 +79,7 @@ export default async function Pricing({ searchParams }: { searchParams: Promise<
           </section>
         )}
 
-        <Plans initialError={error ? "Your card wasn't charged. Pick a plan to try again." : undefined} />
+        <Plans cta={reason?.cta} initialError={error ? "Your card wasn't charged. Pick a plan to try again." : undefined} />
 
         <div className="flex flex-col gap-2">
           <div><Tag tone="amber">Stripe test mode</Tag></div>

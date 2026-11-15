@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getGuest } from "@/lib/guest";
+import { getCar, getGuest } from "@/lib/guest";
+import { PART_LESSONS, prewarm } from "@/lib/prewarm";
 import { appUrl, stripe } from "@/lib/stripe";
 
 // Stripe redirects here after payment. No webhook: we confirm the session with Stripe directly.
@@ -25,5 +26,9 @@ export async function GET(req: Request) {
     console.error("verify: set premium", error);
     return fail;
   }
+  after(async () => {
+    const car = await getCar(guest.id).catch(() => null);
+    if (car) await prewarm(car, PART_LESSONS);
+  });
   return NextResponse.redirect(`${appUrl()}/app?upgraded=1`);
 }

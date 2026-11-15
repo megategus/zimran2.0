@@ -120,11 +120,13 @@ export default function Home() {
           </div>
           <ul className="flex flex-col">
             {COURSES.map((c) => (
-              <li key={c.key} className="flex items-baseline justify-between gap-4 border-b border-line py-4">
-                <span className={`type-h3 ${c.status === "live" ? "text-ink" : "text-ink-muted"}`}>{c.title}</span>
-                <span className={`type-caption ${c.status === "live" ? "text-brand font-semibold" : "text-ink-muted"}`}>
-                  {c.status === "live" ? `${c.lessons.length} lessons` : "Coming soon"}
-                </span>
+              <li key={c.key} className="border-b border-line">
+                <Link href={c.status === "live" ? "/onboarding" : `/course/${c.key}`} className="group flex items-baseline justify-between gap-4 py-4 hover:bg-surface -mx-2 px-2">
+                  <span className={`type-h3 ${c.status === "live" ? "text-ink" : "text-ink-muted"} group-hover:text-brand`}>{c.title}</span>
+                  <span className={`type-caption ${c.status === "live" ? "text-brand font-semibold" : "text-ink-muted"}`}>
+                    {c.status === "live" ? `${c.lessons.length} lessons · start` : "Coming soon · see outline"}
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>

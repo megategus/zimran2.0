@@ -1,6 +1,6 @@
 import { after, NextResponse } from "next/server";
 import { z } from "zod";
-import { getGuest } from "@/lib/guest";
+import { createGuest, getGuest } from "@/lib/guest";
 import { createCarFromVin, createCarFromYmm, isValidVin } from "@/lib/nhtsa";
 import { prewarm } from "@/lib/prewarm";
 
@@ -18,13 +18,15 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Send a VIN, or year, make and model" }, { status: 400 });
 
-  const guest = await getGuest();
+  // A real car starts a clean guest: no demo streak, no DEMO tag, no jury Pro trial carried over.
+  const current = await getGuest();
+  const guest = current.isDemo ? await createGuest(false) : current;
   const input = parsed.data;
   try {
     if ("vin" in input) {
       if (!isValidVin(input.vin)) return NextResponse.json({ error: "A VIN has 17 letters and digits, without I, O or Q" }, { status: 400 });
       const car = await createCarFromVin(guest.id, input.vin);
-      if (!car) return NextResponse.json({ error: "VIN not recognized" }, { status: 400 });
+      if (!car) return NextResponse.json({ error: "We couldn't read that VIN. Pick year, make and model instead." }, { status: 400 });
       after(() => prewarm(car)); // first lessons get written while the user confirms the car
       return NextResponse.json({ car });
     }

@@ -35,7 +35,7 @@ Lesson shape:
 - 4 cards, in this order: "what" (what the part or system is), "how" (how it works), "breaks" (how it fails, with the symptoms the driver notices), "fix" (DIY or shop: what the job involves on this car, and when to go to a pro). Each card body is 40 to 90 words.
 - costs: realistic US price ranges in dollars for parts-only DIY and for an independent shop on this car.
 - safety: when the topic involves brakes, lifting the car, wheels, hot coolant, airbags or high voltage, give a concrete safety note that ends with when to stop and see a pro. Otherwise null.
-- quiz: 3 questions that test the lesson's objectives, each with 4 plausible options and one correct answer (answerIndex 0 to 3). Vary which position is correct.`;
+- quiz: 3 questions that test the lesson's objectives, each with 4 options and one correct answer (answerIndex 0 to 3). Vary which position is correct. Wrong options must be believable to a non-mechanic: common myths, near-misses, or right for a different car. Keep all 4 options similar in length and tone, and never write a joke or obviously unsafe option. Add "why": one plain sentence on why the correct answer is right.`;
 
 export function lessonPrompt(car: Car, found: FoundLesson): string {
   const recalls = relevantRecalls(car, found);
@@ -49,7 +49,7 @@ export function lessonPrompt(car: Car, found: FoundLesson): string {
     subject,
     `Objectives:\n${found.lesson.objectives.map((o) => `- ${o}`).join("\n")}`,
     recalls.length
-      ? `Open recalls on this car that touch this topic (mention them where relevant, and tell the owner a dealer fixes recalls for free):\n${recalls.map((r) => `- ${r.campaign} (${r.component}): ${r.summary}`).join("\n")}`
+      ? `NHTSA recalls for this model and year that touch this topic (they may already be fixed on this car; mention them where relevant, tell the owner to check their VIN at nhtsa.gov/recalls, and that a dealer fixes open recalls for free):\n${recalls.map((r) => `- ${r.campaign} (${r.component}): ${r.summary}`).join("\n")}`
       : "",
     needsSafety(found) ? "This topic requires a non-null safety note." : "",
   ]

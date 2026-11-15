@@ -1,5 +1,7 @@
 "use client";
 
+import { Flame } from "lucide-react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { StreakBar } from "@/components/app/StreakBar";
@@ -9,12 +11,13 @@ import { QuizOption, type OptionState } from "@/components/lesson/QuizOption";
 import { SafetyNote } from "@/components/lesson/SafetyNote";
 import { BadgeEarned, Feedback, LoadingFacts, ShareResult } from "@/components/lesson/extras";
 import { ArrowButton, ArrowLink, headline, SiteNav } from "@/components/ui/site";
-import { BADGES, findLesson, SHOP_QUERY } from "@/content/catalog";
+import { BADGES, COURSES, findLesson, SHOP_QUERY } from "@/content/catalog";
 import { canAccess } from "@/lib/access";
+import { pricingHref } from "@/lib/paywall";
 import type { Me } from "@/lib/progress";
 import type { PublicLesson } from "@/lib/types";
 
-type Result = { score: number; total: number; correct: number[]; xpGained: number; streak: number };
+type Result = { score: number; total: number; correct: number[]; why?: (string | null)[]; xpGained: number; streak: number };
 const LETTERS = ["A", "B", "C", "D"];
 
 export default function LessonPage() {
@@ -35,7 +38,7 @@ export default function LessonPage() {
   const load = useCallback(async () => {
     setFailed(false);
     const res = await fetch(`/api/lessons/${key}`).catch(() => null);
-    if (res?.status === 402) return router.replace("/pricing");
+    if (res?.status === 402) return router.replace(pricingHref(key));
     if (res?.status === 409) return router.replace("/onboarding");
     if (!res?.ok) return setFailed(true);
     setLesson((await res.json()).lesson);
@@ -87,6 +90,11 @@ export default function LessonPage() {
     const idx = found?.course?.lessons.findIndex((l) => l.key === key) ?? -1;
     const next = idx >= 0 ? found?.course?.lessons[idx + 1] : undefined;
     const nextOpen = next && me && canAccess(me.guest, next.key);
+    // Next lesson locked: point at another free lesson first, Pro second.
+    const freeNext = !nextOpen && me
+      ? COURSES.filter((c) => c.status === "live").flatMap((c) => c.lessons).find((l) => l.key !== key && canAccess(me.guest, l.key) && !me.progress.some((p) => p.lessonKey === l.key))
+      : undefined;
+    const streakUp = result.streak > (me?.streak ?? 0);
     // This lesson finished the course: the badge lights up.
     const doneKeys = new Set([...(me?.progress.map((p) => p.lessonKey) ?? []), key]);
     const badge = found?.course && found.course.lessons.every((l) => doneKeys.has(l.key)) ? BADGES[found.course.key] : undefined;
@@ -96,7 +104,17 @@ export default function LessonPage() {
           <h2 className={`${headline} text-ink text-[72px] leading-[0.9] md:text-[104px]`}>
             <span className="text-brand">{result.score}</span>/{result.total}
           </h2>
-          <p className="type-body-lg text-ink">correct · <span className="text-brand font-semibold">+{result.xpGained} XP</span> · {result.streak} day streak</p>
+          <p className="type-body-lg text-ink">correct · <span className="text-brand font-semibold">+{result.xpGained} XP</span></p>
+          <p role="status" className="flex items-center gap-3">
+            <span className={`inline-flex items-center gap-1 rounded-pill bg-amber text-on-amber px-3 py-1.5 type-stat text-[18px] leading-none ${streakUp ? "flame-pop" : ""}`} aria-hidden>
+              <Flame size={18} />{result.streak}
+            </span>
+            <span className="type-body-lg text-ink">
+              {streakUp
+                ? result.streak === 1 ? "Streak started! Come back tomorrow to keep it going." : `Day ${result.streak}! Today counts toward your streak.`
+                : `Today already counts. ${result.streak}-day streak, see you tomorrow.`}
+            </span>
+          </p>
         </div>
         {badge && <BadgeEarned name={badge} part={part} />}
         <ShareResult score={result.score} total={result.total} course={shell.course || lesson.title} streak={result.streak} />
@@ -106,10 +124,19 @@ export default function LessonPage() {
             {q.options.map((o, oi) => (
               <QuizOption key={oi} letter={LETTERS[oi]} text={o} disabled state={oi === result.correct[qi] ? "correct" : oi === answers[qi] ? "wrong" : "idle"} />
             ))}
+            {result.why?.[qi] && (
+              <p className={`type-body border-l-4 pl-3 ${answers[qi] === result.correct[qi] ? "border-line-strong text-ink-muted" : "border-brake text-ink"}`}>
+                <span className="font-semibold">{answers[qi] === result.correct[qi] ? "Right. " : "Why: "}</span>{result.why[qi]}
+              </p>
+            )}
           </div>
         ))}
         <div className="flex flex-wrap items-center gap-8 border-t border-line pt-8">
-          {next && (nextOpen ? <ArrowLink href={`/lesson/${next.key}`}>Next lesson</ArrowLink> : <ArrowLink href="/pricing">Unlock with Pro</ArrowLink>)}
+          {next && nextOpen && <ArrowLink href={`/lesson/${next.key}`}>Next lesson</ArrowLink>}
+          {!nextOpen && freeNext && <ArrowLink href={`/lesson/${freeNext.key}`}>Next free lesson: {freeNext.title}</ArrowLink>}
+          {next && !nextOpen && (
+            <Link href={pricingHref(next.key)} className="type-body text-ink underline underline-offset-4 hover:text-brand">Unlock “{next.title}” with Pro</Link>
+          )}
           <ArrowLink href="/app">Back to my courses</ArrowLink>
         </div>
         <Feedback lessonKey={key} />
@@ -155,7 +182,7 @@ export default function LessonPage() {
     setSubmitting(true);
     const res = await fetch(`/api/lessons/${key}/complete`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ answers }) }).catch(() => null);
     setSubmitting(false);
-    if (res?.status === 402) return router.replace("/pricing");
+    if (res?.status === 402) return router.replace(pricingHref(key));
     if (res?.ok) {
       const r: Result = await res.json();
       setResult(r);
@@ -207,7 +234,7 @@ function Nav({ onBack, children }: { onBack?: () => void; children: React.ReactN
 function Shell({ me, title, course, progress, streak, xpView, celebrate, children }: { me: Me | null; title: string; course: string; progress?: number; streak?: number; xpView?: { xp: number; instant?: boolean } | null; celebrate?: boolean; children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-[1120px] px-4 md:px-10 pb-16">
-      <SiteNav left={[{ href: "/app", label: "My courses" }]} right={[{ href: "/pricing", label: "Pricing" }]} />
+      <SiteNav left={[{ href: "/app", label: "My courses" }]} right={me?.guest.isPremium ? [{ href: "/chat", label: "AI Mechanic" }] : [{ href: "/pricing", label: "Go Pro" }]} />
       {/* Thin red progress line under the nav. */}
       <div className="h-1 bg-line" role="progressbar" aria-label="Lesson progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round((progress ?? 0) * 100)}>
         <div className="h-full bg-brand transition-[width] duration-300 ease-out" style={{ width: `${(progress ?? 0) * 100}%` }} />

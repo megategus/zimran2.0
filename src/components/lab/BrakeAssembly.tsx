@@ -109,7 +109,7 @@ function Scene({ selected, onSelect, explode: t }: SceneProps) {
 
 export function BrakeAssembly(props: SceneProps) {
   return (
-    <Canvas dpr={[1, 2]} camera={{ position: [4, 2.6, 5.6], fov: 40 }} onPointerMissed={() => (document.body.style.cursor = "")} aria-label="3D brake assembly. Drag to rotate.">
+    <Canvas dpr={[1, 2]} resize={{ debounce: 0 }} style={{ width: "100%", height: "100%" }} onCreated={() => requestAnimationFrame(() => window.dispatchEvent(new Event("resize")))} camera={{ position: [4, 2.6, 5.6], fov: 40 }} onPointerMissed={() => (document.body.style.cursor = "")} aria-label="3D brake assembly. Drag to rotate.">
       <Scene {...props} />
     </Canvas>
   );

@@ -32,5 +32,5 @@ export async function POST(req: Request, { params }: { params: Promise<{ key: st
     throw e;
   }
   const { xpGained, streak } = await recordCompletion(guest, key, score);
-  return NextResponse.json({ score, total: lesson.quiz.length, correct: lesson.quiz.map((q) => q.answerIndex), xpGained, streak });
+  return NextResponse.json({ score, total: lesson.quiz.length, correct: lesson.quiz.map((q) => q.answerIndex), why: lesson.quiz.map((q) => q.why ?? null), xpGained, streak });
 }

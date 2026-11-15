@@ -30,7 +30,7 @@ export type Car = {
 
 export type CardKind = "what" | "how" | "breaks" | "fix";
 
-export type QuizItem = { q: string; options: string[]; answerIndex: number };
+export type QuizItem = { q: string; options: string[]; answerIndex: number; why?: string };
 
 export type Lesson = {
   title: string;

@@ -13,7 +13,7 @@ export function LoadingFacts({ car, part }: { car: Car | null | undefined; part:
         `${car.year} ${titleCase(car.make)} ${car.model}${car.trim ? ` ${car.trim}` : ""}`,
         ...(car.engine ? [`Engine: ${car.engine}`] : []),
         ...Object.entries(car.specs).map(([k, v]) => `${k}: ${v}`),
-        car.recalls.length ? `${car.recalls.length} open recall${car.recalls.length > 1 ? "s" : ""}: ${car.recalls[0].component}` : "No open recalls on record",
+        car.recalls.length ? `${car.recalls.length} recall${car.recalls.length > 1 ? "s" : ""} for this model, e.g. ${car.recalls[0].component.split(":")[0].toLowerCase()}` : "No recalls on record for this model",
       ]
     : [];
   const [i, setI] = useState(0);
@@ -59,15 +59,21 @@ export function Feedback({ lessonKey }: { lessonKey: string }) {
 
 // Shareable result card + native share sheet (falls back to copying the text).
 export function ShareResult({ score, total, course, streak }: { score: number; total: number; course: string; streak: number }) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<"idle" | "shared" | "copied" | "failed">("idle");
   const text = `${score}/${total} on ${course} · ${streak}-day streak on Wrenchly. Learning my own car, 5 minutes a day.`;
   async function share() {
     const url = location.origin;
     try {
-      if (navigator.share) return await navigator.share({ title: "Wrenchly", text, url });
+      if (navigator.share) {
+        await navigator.share({ title: "Wrenchly", text, url });
+        return setStatus("shared");
+      }
       await navigator.clipboard.writeText(`${text} ${url}`);
-      setCopied(true);
-    } catch {}
+      setStatus("copied");
+    } catch (e) {
+      // Closing the share sheet is not an error worth showing.
+      if ((e as Error)?.name !== "AbortError") setStatus("failed");
+    }
   }
   return (
     <div className="flex flex-col gap-4 bg-plate text-on-plate p-6">
@@ -79,8 +85,11 @@ export function ShareResult({ score, total, course, streak }: { score: number; t
       </p>
       <button type="button" onClick={share} className="self-start inline-flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 type-label text-[12px] cursor-pointer">
         <Share2 size={16} aria-hidden />
-        {copied ? "Copied" : "Share"}
+        Share
       </button>
+      <span role="status" className="type-caption opacity-80 min-h-4">
+        {status === "shared" ? "Shared." : status === "copied" ? "Copied to clipboard. Paste it anywhere." : status === "failed" ? "Couldn't share from this browser." : ""}
+      </span>
     </div>
   );
 }

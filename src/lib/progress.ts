@@ -31,15 +31,18 @@ export function streakInfo(days: string[], todayStr: string): { streak: number; 
 
 export const streak = (days: string[], todayStr: string) => streakInfo(days, todayStr).streak;
 
-export type DayState = "done" | "frozen" | "today" | "missed";
+export type DayState = "done" | "frozen" | "today" | "missed" | "upcoming";
 
-// The last 7 days ending today, for the week strip under the streak.
+// This calendar week, Monday to Sunday, for the week strip under the streak.
 export function week(days: string[], frozen: string[], todayStr: string) {
   const done = new Set(days), ice = new Set(frozen);
+  const t = Date.parse(todayStr);
+  const monday = t - ((new Date(t).getUTCDay() + 6) % 7) * DAY;
   const out: { day: string; label: string; state: DayState }[] = [];
-  for (let i = 6, d = todayStr; i >= 0; i--, d = prevDay(d)) {
-    const state: DayState = done.has(d) ? "done" : ice.has(d) ? "frozen" : d === todayStr ? "today" : "missed";
-    out[i] = { day: d, label: "SMTWTFS"[new Date(d).getUTCDay()], state };
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday + i * DAY).toISOString().slice(0, 10);
+    const state: DayState = done.has(d) ? "done" : ice.has(d) ? "frozen" : d === todayStr ? "today" : d > todayStr ? "upcoming" : "missed";
+    out.push({ day: d, label: "MTWTFSS"[i], state });
   }
   return out;
 }

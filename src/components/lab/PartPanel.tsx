@@ -2,6 +2,7 @@
 
 import { Check, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { pricingHref } from "@/lib/paywall";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { PublicLesson } from "@/lib/types";
@@ -22,7 +23,7 @@ export function PartPanel({ partKey, name, onXp }: { partKey: string; name: stri
     setLesson(null);
     try {
       const res = await fetch(`/api/lessons/${partKey}`);
-      if (res.status === 402) return router.replace("/pricing");
+      if (res.status === 402) return router.replace(pricingHref(partKey));
       if (res.status === 409) return router.replace("/onboarding");
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.lesson) throw new Error();
@@ -44,7 +45,7 @@ export function PartPanel({ partKey, name, onXp }: { partKey: string; name: stri
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ answers }),
       });
-      if (res.status === 402) return router.replace("/pricing");
+      if (res.status === 402) return router.replace(pricingHref(partKey));
       const data = await res.json().catch(() => null);
       if (!res.ok || typeof data?.score !== "number") throw new Error();
       setResult(data);
@@ -70,6 +71,8 @@ export function PartPanel({ partKey, name, onXp }: { partKey: string; name: stri
       <div className="flex flex-col gap-2" aria-busy="true">
         <h2 className="type-h2">{name}</h2>
         <p className="text-ink-muted">Writing a lesson about the {name.toLowerCase()} on your car…</p>
+        <div className="h-1 w-full overflow-hidden bg-surface-sunken" aria-hidden><div className="h-full w-1/3 bg-brand animate-[lab-load_1.4s_ease-in-out_infinite] motion-reduce:animate-none" /></div>
+        <p className="type-caption text-ink-muted">Claude writes it for your exact car the first time, usually 5–15 seconds. After that it opens instantly.</p>
       </div>
     );
   }

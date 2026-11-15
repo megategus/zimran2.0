@@ -36,11 +36,18 @@ describe("streak freeze", () => {
 });
 
 describe("week", () => {
-  it("labels the last 7 days", () => {
+  it("shows the calendar week, Monday to Sunday", () => {
+    // 2026-11-15 is a Sunday: the week runs 2026-11-09 (Mon) to 2026-11-15.
     const w = week(["2026-11-14", "2026-11-15"], ["2026-11-13"], "2026-11-15");
+    expect(w.map((d) => d.label).join("")).toBe("MTWTFSS");
     expect(w.map((d) => d.state)).toEqual(["missed", "missed", "missed", "missed", "frozen", "done", "done"]);
     expect(w[6]).toEqual({ day: "2026-11-15", label: "S", state: "done" });
-    expect(week([], [], "2026-11-15")[6].state).toBe("today");
+  });
+  it("marks days after today as upcoming, not missed", () => {
+    // 2026-11-16 is a Monday: today first, six upcoming days.
+    const w = week([], [], "2026-11-16");
+    expect(w[0]).toEqual({ day: "2026-11-16", label: "M", state: "today" });
+    expect(w.slice(1).every((d) => d.state === "upcoming")).toBe(true);
   });
 });
 
