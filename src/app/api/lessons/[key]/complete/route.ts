@@ -21,7 +21,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ key: st
   const car = await getCar(guest.id);
   if (!car) return err("Add your car first", 409);
   // The quiz answers never left the server: grade against the cached lesson.
-  const lesson = await getCachedLesson(car.id, key);
+  const lesson = await getCachedLesson(car, key);
   if (!lesson) return err("Open the lesson before finishing it", 409);
 
   let score: number;

@@ -41,7 +41,7 @@ export default async function AppHome() {
 
   // Seasonal tip: the figure comes from this car's cached lesson, never hardcoded.
   const tip = seasonTip(new Date(me.today).getUTCMonth());
-  const tipLesson = await getCachedLesson(car.id, tip.lessonKey).catch(() => null);
+  const tipLesson = await getCachedLesson(car, tip.lessonKey).catch(() => null);
   const quote = tipLesson ? findSentence(tipLesson, tip.quote) : null;
 
   return (

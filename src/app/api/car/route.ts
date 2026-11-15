@@ -2,7 +2,8 @@ import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { createGuest, getGuest } from "@/lib/guest";
 import { createCarFromVin, createCarFromYmm, isValidVin } from "@/lib/nhtsa";
-import { prewarm } from "@/lib/prewarm";
+import { clientIp, generationGuard } from "@/lib/limits";
+import { prewarm, START_LESSON } from "@/lib/prewarm";
 
 const thisYear = new Date().getFullYear();
 const Body = z.union([
@@ -27,11 +28,11 @@ export async function POST(req: Request) {
       if (!isValidVin(input.vin)) return NextResponse.json({ error: "A VIN has 17 letters and digits, without I, O or Q" }, { status: 400 });
       const car = await createCarFromVin(guest.id, input.vin);
       if (!car) return NextResponse.json({ error: "We couldn't read that VIN. Pick year, make and model instead." }, { status: 400 });
-      after(() => prewarm(car)); // first lessons get written while the user confirms the car
+      after(() => prewarm(car, [START_LESSON], generationGuard(guest.id, clientIp(req)))); // the first lesson gets written while the user confirms the car
       return NextResponse.json({ car });
     }
     const car = await createCarFromYmm(guest.id, input.year, input.make, input.model);
-    after(() => prewarm(car));
+    after(() => prewarm(car, [START_LESSON], generationGuard(guest.id, clientIp(req))));
     return NextResponse.json({ car });
   } catch (e) {
     console.error("POST /api/car", e);

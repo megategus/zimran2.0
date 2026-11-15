@@ -5,6 +5,8 @@ const create = vi.fn();
 vi.mock("@/lib/anthropic", () => ({
   MODEL: "test-model",
   FALLBACK: {},
+  LESSON_MODEL: "test-model",
+  fallbackFor: () => ({}),
   anthropic: () => ({ beta: { messages: { create } } }),
 }));
 vi.mock("@/lib/db", () => ({ db: () => { throw new Error("db not used in these tests"); } }));
@@ -75,5 +77,16 @@ describe("LessonSchema as output format", () => {
 describe("toPublic", () => {
   it("strips answerIndex", () => {
     expect(toPublic(valid).quiz[0]).not.toHaveProperty("answerIndex");
+  });
+});
+
+describe("profileKey", () => {
+  it("is the same for two owners of the same car, whatever the spacing or case", async () => {
+    const { profileKey } = await import("./generate");
+    const a = profileKey({ year: 2018, make: "HONDA", model: "Civic", trim: "LX", engine: "2.0L I4" });
+    const b = profileKey({ year: 2018, make: " honda ", model: "civic", trim: "lx", engine: "2.0L  I4" });
+    expect(a).toBe("2018|honda|civic|lx|2.0l i4");
+    expect(b).toBe(a);
+    expect(profileKey({ year: 2018, make: "HONDA", model: "Civic", trim: null, engine: null })).toBe("2018|honda|civic||");
   });
 });

@@ -29,7 +29,7 @@ async function fairBrakePrice(): Promise<{ shop: string; car: string } | null> {
     const car = guest ? await getCar(guest.id) : null;
     if (car) {
       for (const k of ["brakes-3", "brakes-1"]) {
-        const l = await getCachedLesson(car.id, k);
+        const l = await getCachedLesson(car, k);
         if (l) return { shop: l.costs.shop, car: `${car.year} ${car.model}` };
       }
     }
