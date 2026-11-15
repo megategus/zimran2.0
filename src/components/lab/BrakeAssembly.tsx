@@ -23,13 +23,13 @@ function Mat({ color }: { color: string }) {
   return <meshStandardMaterial color={color} roughness={0.55} metalness={0.25} emissive={glow.color} emissiveIntensity={glow.level} />;
 }
 
-type SceneProps = { selected: string | null; onSelect: (key: string) => void; explode: number };
+type SceneProps = { selected: string | null; onSelect: (key: string) => void; explode: number; hideLabels?: boolean };
 
-type SceneCtx = { selected: string | null; hover: string | null; setHover: (f: (h: string | null) => string | null) => void; onSelect: (key: string) => void; t: number; brand: string };
-const Ctx = createContext<SceneCtx>({ selected: null, hover: null, setHover: () => {}, onSelect: () => {}, t: 0, brand: "black" });
+type SceneCtx = { selected: string | null; hover: string | null; setHover: (f: (h: string | null) => string | null) => void; onSelect: (key: string) => void; t: number; brand: string; hideLabels: boolean };
+const Ctx = createContext<SceneCtx>({ selected: null, hover: null, setHover: () => {}, onSelect: () => {}, t: 0, brand: "black", hideLabels: false });
 
 function Part({ id, offset, label, labelAt, children }: { id: string; offset: Vec; label?: string; labelAt?: Vec; children: ReactNode }) {
-  const { selected, hover, setHover, onSelect, t, brand } = useContext(Ctx);
+  const { selected, hover, setHover, onSelect, t, brand, hideLabels } = useContext(Ctx);
   const active = selected === id;
   const hot = hover === id;
   const over = (e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setHover(() => id); document.body.style.cursor = "pointer"; };
@@ -37,7 +37,7 @@ function Part({ id, offset, label, labelAt, children }: { id: string; offset: Ve
   return (
     <group position={offset} onPointerOver={over} onPointerOut={out} onClick={(e) => { e.stopPropagation(); onSelect(id); }}>
       <Glow.Provider value={{ color: brand, level: active ? 0.5 : hot ? 0.25 : 0 }}>{children}</Glow.Provider>
-      {label && labelAt && (active || hot || t > 0.5) && (
+      {label && labelAt && !hideLabels && (active || hot || t > 0.5) && (
         <Html position={labelAt} center style={{ pointerEvents: "none" }}>
           <span className={`whitespace-nowrap rounded-pill px-2 py-1 type-label text-[11px] leading-[14px] ${active ? "bg-brand text-on-brand" : "bg-surface text-ink border border-line"}`}>{label}</span>
         </Html>
@@ -46,7 +46,7 @@ function Part({ id, offset, label, labelAt, children }: { id: string; offset: Ve
   );
 }
 
-function Scene({ selected, onSelect, explode: t }: SceneProps) {
+function Scene({ selected, onSelect, explode: t, hideLabels = false }: SceneProps) {
   const c = useTokens();
   const [hover, setHover] = useState<string | null>(null);
 
@@ -54,7 +54,7 @@ function Scene({ selected, onSelect, explode: t }: SceneProps) {
   const studs = useMemo(() => Array.from({ length: 5 }, (_, i) => (i / 5) * Math.PI * 2 + Math.PI / 2), []);
 
   return (
-    <Ctx.Provider value={{ selected, hover, setHover, onSelect, t, brand: c.brand }}>
+    <Ctx.Provider value={{ selected, hover, setHover, onSelect, t, brand: c.brand, hideLabels }}>
       <color attach="background" args={[c.bg]} />
       <ambientLight intensity={0.9} />
       <directionalLight position={[4, 6, 5]} intensity={1.8} />

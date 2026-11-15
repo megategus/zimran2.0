@@ -93,7 +93,7 @@ export function LabView() {
             <div className="rounded-lg bg-plate overflow-hidden border-2 border-plate">
               <div className="h-[340px] sm:h-[420px] lg:h-[480px]">
                 {webgl ? (
-                  <BrakeAssembly selected={selected} onSelect={pick} explode={explode} />
+                  <BrakeAssembly selected={selected} onSelect={pick} explode={explode} hideLabels={!!target} />
                 ) : (
                   <p className="p-6 text-on-plate">Your browser can&apos;t show 3D here. Pick a part below to learn it.</p>
                 )}
